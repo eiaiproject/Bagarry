@@ -41,7 +41,7 @@ jobs:
           fetch-depth: 0
       - name: Tunggu analisis SonarCloud selesai
         run: sleep 120
-      - uses: SonarSource/sonarqube-quality-gate-action@05570f3708d50ecedfb2d843b56a9c6f8f4813c
+      - uses: SonarSource/sonarqube-quality-gate-action@7a5fffe8e523c40e0c740b6bc2712ab503e52efa
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
