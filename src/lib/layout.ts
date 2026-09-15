@@ -74,9 +74,7 @@ const STYLES = `
   /* Tombol terkunci tidak diredupkan: meredupkan seluruh tombol menurunkan kontras teksnya
      di bawah WCAG AA. Perubahan label dan kursor sudah cukup menandai keadaannya. */
   .btn:disabled { cursor:progress; }
-  .btn-sm { min-height:38px; padding:4px 10px; font-size:13px; }
-  /* Tombol kecil di dalam tabel tetap ramah jari di layar sempit. */
-  @media (max-width:640px){ .btn-sm { min-height:44px; } }
+  .btn-sm { min-height:var(--tap); padding:4px 10px; font-size:13px; }
 
   .label { display:block; font-size:12px; font-weight:600; color:#475569; margin-bottom:4px; }
   .input { width:100%; min-height:44px; padding:8px 10px; border:1px solid #cbd5e1;

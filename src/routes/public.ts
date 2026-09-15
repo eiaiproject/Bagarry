@@ -67,11 +67,12 @@ export function registerPublicRoutes(app: Hono<AppEnv>): void {
         esc(house.note),
       ]),
       'Belum ada data rumah. Bendahara perlu mengisi data rumah lewat menu Kelola Rumah.',
+      { caption: 'Status iuran per rumah, tanpa nama pemilik' },
     );
 
     const content = `
       <div>
-        <h2 class="page-title">Papan Kas Amartha Cluster Bagarry</h2>
+        <h1 class="page-title">Papan Kas Amartha Cluster Bagarry</h1>
         <p class="page-sub">Saldo dan status iuran bulan ${esc(monthLabel(board.month))}. Data per ${esc(
           formatDateID(jakartaTimestamp().slice(0, 10)),
         )} WIB.</p>
@@ -79,7 +80,7 @@ export function registerPublicRoutes(app: Hono<AppEnv>): void {
       ${hero}
       ${counts}
       <div>
-        <h3 class="page-title" style="font-size:16px">Status iuran per rumah</h3>
+        <h2 class="section-title">Status iuran per rumah</h2>
         <p class="page-sub">Nomor rumah ditampilkan tanpa nama pemilik, tanpa bukti transfer, dan tanpa detail pembayaran.</p>
       </div>
       ${houseTable}
@@ -94,7 +95,7 @@ export function registerPublicRoutes(app: Hono<AppEnv>): void {
 
     const content = `
       <div class="card pad" style="max-width:420px">
-        <h2 class="page-title" style="font-size:18px">Masuk</h2>
+        <h1 class="page-title" style="font-size:18px">Masuk</h1>
         <p class="page-sub" style="margin-bottom:16px">Gunakan akun rumah atau akun bendahara.</p>
         <form method="post" action="/login">
           <label class="label" for="identifier">Username atau email</label>
@@ -199,7 +200,7 @@ export function registerPublicRoutes(app: Hono<AppEnv>): void {
 function passwordForm(mandatory: boolean, role: 'admin' | 'resident'): string {
   return `
     <div class="card pad">
-      <h2 class="page-title" style="font-size:18px">Ganti password</h2>
+      <h1 class="page-title" style="font-size:18px">Ganti password</h1>
       ${
         mandatory
           ? `<p class="page-sub" style="margin-bottom:16px">Password default wajib diganti sebelum memakai menu lain.</p>`

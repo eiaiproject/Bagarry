@@ -35,8 +35,13 @@ export function badge(status: string): string {
   return `<span class="badge badge-${esc(status)}">${esc(statusLabel(status))}</span>`;
 }
 
-export function emptyState(message: string, action?: { href: string; label: string; iconName?: IconName }): string {
-  return `<div class="empty">
+export function emptyState(
+  message: string,
+  action?: { href: string; label: string; iconName?: IconName },
+  heading?: string,
+): string {
+  return `<div class="empty" role="status">
+    ${heading ? `<p><strong>${esc(heading)}</strong></p>` : ''}
     <p>${esc(message)}</p>
     ${
       action
@@ -60,7 +65,7 @@ export function table(
   emptyMessage: string,
   options: TableOptions = {},
 ): string {
-  if (rows.length === 0) return emptyState(emptyMessage);
+  if (rows.length === 0) return emptyState(emptyMessage, undefined, options.caption);
   const head = headers.map((header) => `<th scope="col">${esc(header)}</th>`).join('');
   const body = rows
     .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join('')}</tr>`)

@@ -176,8 +176,9 @@ Alasan tiap keputusan:
   state "memuat" di klien. Satu-satunya jeda yang tidak terlihat adalah saat form dikirim
   ke server, jadi tombol submit dikunci dan labelnya berubah menjadi "Mengirim..." supaya
   pengajuan tidak terkirim dua kali di koneksi lambat.
-- **Ukuran kontrol sentuh**: tombol tabel 38 px di desktop karena mouse presisi, naik ke
-  44 px di layar sempit untuk jempol. Kolom ketik memakai font 16 px supaya iOS Safari
+- **Ukuran kontrol sentuh**: semua tombol termasuk tombol tabel memakai tinggi
+  minimal 44 px di semua viewport, karena tablet sentuh (mis. iPad 768 px) ikut
+  memakai breakpoint desktop. Kolom ketik memakai font 16 px supaya iOS Safari
   tidak melakukan auto-zoom saat fokus.
 - **Navigasi**: menu horizontal yang bisa digeser di layar kecil, tanpa menu tersembunyi, dan setiap
   item mengarah ke halaman yang benar-benar ada.

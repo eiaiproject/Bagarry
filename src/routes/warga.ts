@@ -49,18 +49,19 @@ export function registerWargaRoutes(app: Hono<AppEnv>): void {
         badge(payment.status),
       ]),
       'Belum ada pengajuan pembayaran dari rumah ini.',
+      { caption: 'Pengajuan pembayaran terakhir rumah ini' },
     );
 
     const content = `
       <div>
-        <h2 class="page-title">Halo, ${esc(house.block)}</h2>
+        <h1 class="page-title">Halo, ${esc(house.block)}</h1>
         <p class="page-sub">${esc(house.house_type)} · kode akun ${esc(house.house_code)} · ${esc(info.note)}</p>
       </div>
       ${summary}
       ${due}
       <div>${actions}</div>
       <div>
-        <h3 class="page-title" style="font-size:16px">Pengajuan terakhir</h3>
+        <h2 class="section-title">Pengajuan terakhir</h2>
       </div>
       ${recent}
       ${
@@ -86,7 +87,7 @@ export function registerWargaRoutes(app: Hono<AppEnv>): void {
       return page(c, {
         title: 'Bayar Iuran',
         active: '/warga/pembayaran',
-        content: `<h2 class="page-title">Bayar iuran</h2>
+        content: `<h1 class="page-title">Bayar iuran</h1>
           ${emptyState('Tidak ada bulan yang perlu dibayar.', {
             href: '/warga/riwayat',
             label: 'Lihat riwayat pembayaran',
@@ -107,7 +108,7 @@ export function registerWargaRoutes(app: Hono<AppEnv>): void {
 
     const content = `
       <div>
-        <h2 class="page-title">Upload bukti transfer</h2>
+        <h1 class="page-title">Upload bukti transfer</h1>
         <p class="page-sub">Bulan harus dipilih berurutan mulai tunggakan terlama. Pembayaran boleh rapel.</p>
       </div>
       <form method="post" action="/warga/pembayaran" enctype="multipart/form-data" class="card pad">
@@ -237,7 +238,7 @@ export function registerWargaRoutes(app: Hono<AppEnv>): void {
 
     const detailBox = detail
       ? `<div class="card pad">
-          <h3 class="page-title" style="font-size:16px">Detail pengajuan</h3>
+          <h2 class="section-title">Detail pengajuan</h2>
           <p class="page-sub">Bulan ${esc(monthListLabel(detail.months))} · ${rupiah(detail.amount)} · diunggah ${esc(
             formatDateID(detail.created_at),
           )}</p>
@@ -264,7 +265,7 @@ export function registerWargaRoutes(app: Hono<AppEnv>): void {
 
     const content = `
       <div>
-        <h2 class="page-title">Riwayat pembayaran ${esc(house.block)}</h2>
+        <h1 class="page-title">Riwayat pembayaran ${esc(house.block)}</h1>
         <p class="page-sub">Bukti transfer hanya bisa dilihat oleh rumah ini dan bendahara.</p>
       </div>
       ${detailBox}
@@ -275,9 +276,10 @@ export function registerWargaRoutes(app: Hono<AppEnv>): void {
           esc(monthListLabel(payment.months)),
           `<span class="num">${rupiah(payment.amount)}</span>`,
           badge(payment.status),
-          `<a class="btn btn-ghost btn-sm" href="/warga/riwayat?id=${payment.id}">${icon('view')}<span>Detail</span></a>`,
+          `<a class="btn btn-ghost btn-sm" href="/warga/riwayat?id=${payment.id}" aria-label="Detail pengajuan ${esc(monthListLabel(payment.months))}">${icon('view')}<span aria-hidden="true">Detail</span></a>`,
         ]),
         'Belum ada pengajuan pembayaran.',
+        { caption: 'Riwayat pembayaran rumah ini' },
       )}
       <a class="btn btn-ghost" href="/warga">${icon('back')}<span>Kembali ke dashboard</span></a>
     `;

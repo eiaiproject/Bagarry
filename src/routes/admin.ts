@@ -193,21 +193,22 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
   app.get('/admin/payments/pending', async (c) => {
     const pending = await listPayments(c.env.DB, { status: 'pending', limit: 100 });
     const content = `
-      <h2 class="page-title">Menunggu verifikasi</h2>
+      <h1 class="page-title">Menunggu verifikasi</h1>
       <p class="page-sub">Periksa bukti transfer dan nominal sebelum menyetujui.</p>
       ${table(
-        ['Rumah', 'Bulan', 'Nominal', 'Diunggah', 'Catatan warga', ''],
+        ['Rumah', 'Bulan', 'Nominal', 'Diunggah', 'Catatan warga', 'Aksi'],
         pending.map((payment) => [
           `<strong>${esc(payment.block)}</strong>`,
           esc(monthListLabel(payment.months)),
           `<span class="num">${rupiah(payment.amount)}</span>`,
           esc(formatDateID(payment.created_at)),
           esc(payment.note ?? '-'),
-          `<a class="btn btn-primary btn-sm" href="/admin/payments/pending/${payment.id}">${icon(
+          `<a class="btn btn-primary btn-sm" href="/admin/payments/pending/${payment.id}" aria-label="Periksa pembayaran ${esc(payment.block)} ${esc(monthListLabel(payment.months))}">${icon(
             'inspect',
-          )}<span>Periksa</span></a>`,
+          )}<span aria-hidden="true">Periksa</span></a>`,
         ]),
         'Tidak ada pembayaran yang menunggu verifikasi.',
+        { caption: 'Pembayaran yang menunggu verifikasi bendahara' },
       )}
     `;
     return page(c, { title: 'Menunggu Verifikasi', content, active: '/admin/payments/pending' });
@@ -221,14 +222,14 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
       return page(c, {
         title: 'Pembayaran sudah diproses',
         active: '/admin/payments/pending',
-        content: `<h2 class="page-title">Pembayaran #${payment.id}</h2>
+        content: `<h1 class="page-title">Pembayaran #${payment.id}</h1>
           <p class="page-sub">Status saat ini ${badge(payment.status)}. Tidak ada aksi yang bisa dilakukan.</p>
           <a class="btn btn-ghost" href="/admin/payments/pending">${icon('back')}<span>Kembali ke daftar</span></a>`,
       });
     }
 
     const content = `
-      <h2 class="page-title">Verifikasi pembayaran #${payment.id}</h2>
+      <h1 class="page-title">Verifikasi pembayaran #${payment.id}</h1>
       <div class="grid-cards">
         <div class="stat"><span>Rumah</span><strong style="font-size:16px">${esc(payment.block)}</strong></div>
         <div class="stat"><span>Bulan</span><strong style="font-size:16px">${esc(monthListLabel(payment.months))}</strong></div>
@@ -297,21 +298,22 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
     const statusParam = c.req.query('status');
     const status = statusParam === 'pending' || statusParam === 'verified' || statusParam === 'rejected' ? statusParam : undefined;
     const payments = await listPayments(c.env.DB, { status, limit: 200 });
-    const filterLink = (value: string, label: string, iconName: 'history' | 'pending' | 'approve' | 'reject') =>
-      `<a class="btn ${status === value || (!status && value === '') ? 'btn-primary' : 'btn-ghost'} btn-sm" href="/admin/payments${
+    const filterLink = (value: string, label: string, iconName: 'history' | 'pending' | 'approve' | 'reject', isActive: boolean) =>
+      `<a class="btn ${isActive ? 'btn-primary' : 'btn-ghost'} btn-sm" href="/admin/payments${
         value ? `?status=${value}` : ''
-      }">${icon(iconName)}<span>${esc(label)}</span></a>`;
+      }"${isActive ? ' aria-current="true"' : ''}>${icon(iconName)}<span>${esc(label)}</span></a>`;
 
     const content = `
-      <h2 class="page-title">Pembayaran</h2>
+      <h1 class="page-title">Pembayaran</h1>
       <p class="page-sub">Seluruh pengajuan pembayaran warga, termasuk yang sudah diverifikasi dan ditolak.</p>
-      <div>${filterLink('', 'Semua', 'history')} ${filterLink('pending', 'Menunggu', 'pending')} ${filterLink(
+      <div role="group" aria-label="Filter status pembayaran">${filterLink('', 'Semua', 'history', status === undefined)} ${filterLink('pending', 'Menunggu', 'pending', status === 'pending')} ${filterLink(
         'verified',
         'Diverifikasi',
         'approve',
-      )} ${filterLink('rejected', 'Ditolak', 'reject')}</div>
+        status === 'verified',
+      )} ${filterLink('rejected', 'Ditolak', 'reject', status === 'rejected')}</div>
       ${table(
-        ['Rumah', 'Bulan', 'Nominal', 'Diunggah', 'Status', ''],
+        ['Rumah', 'Bulan', 'Nominal', 'Diunggah', 'Status', 'Aksi'],
         payments.map((payment) => [
           `<strong>${esc(payment.block)}</strong>`,
           esc(monthListLabel(payment.months)),
@@ -319,12 +321,13 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
           esc(formatDateID(payment.created_at)),
           badge(payment.status),
           payment.status === 'pending'
-            ? `<a class="btn btn-ghost btn-sm" href="/admin/payments/pending/${payment.id}">${icon(
+            ? `<a class="btn btn-ghost btn-sm" href="/admin/payments/pending/${payment.id}" aria-label="Periksa pembayaran ${esc(payment.block)} ${esc(monthListLabel(payment.months))}">${icon(
                 'inspect',
-              )}<span>Periksa</span></a>`
-            : `<a class="btn btn-ghost btn-sm" href="/admin/houses/${payment.house_id}">${icon('houses')}<span>Lihat rumah</span></a>`,
+              )}<span aria-hidden="true">Periksa</span></a>`
+            : `<a class="btn btn-ghost btn-sm" href="/admin/houses/${payment.house_id}" aria-label="Lihat rumah ${esc(payment.block)}">${icon('houses')}<span aria-hidden="true">Lihat rumah</span></a>`,
         ]),
         'Belum ada pengajuan pembayaran.',
+        { caption: 'Seluruh pengajuan pembayaran warga' },
       )}
     `;
     return page(c, { title: 'Pembayaran', content, active: '/admin/payments' });
@@ -334,23 +337,24 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
     const settings = await getSettings(c.env.DB);
     const statuses = await statusListFor(c.env.DB, settings);
     const content = `
-      <h2 class="page-title">Kelola rumah</h2>
+      <h1 class="page-title">Kelola rumah</h1>
       <p class="page-sub">${statuses.length} rumah terdaftar.</p>
       <div>
         <a class="btn btn-primary" href="/admin/houses/new">${icon('add')}<span>Tambah rumah</span></a>
         <a class="btn btn-ghost" href="/admin/houses/import">${icon('importCsv')}<span>Import CSV</span></a>
       </div>
       ${table(
-        ['Kode rumah', 'Status huni', 'Aktif iuran', 'Status bayar', 'Keterangan', ''],
+        ['Kode rumah', 'Status huni', 'Aktif iuran', 'Status bayar', 'Keterangan', 'Aksi'],
         statuses.map((entry) => [
           `<strong>${esc(entry.house.house_code)}</strong><br><span class="hint">${esc(entry.house.owner_name ?? 'nama pemilik belum diisi')}</span>`,
           esc(occupancyLabel(entry.house.occupancy_status)),
           entry.house.is_active === 1 ? 'Ya' : 'Tidak',
           badge(entry.info.status),
           esc(entry.info.note),
-          `<a class="btn btn-ghost btn-sm" href="/admin/houses/${entry.house.id}">${icon('edit')}<span>Kelola</span></a>`,
+          `<a class="btn btn-ghost btn-sm" href="/admin/houses/${entry.house.id}" aria-label="Kelola rumah ${esc(entry.house.house_code)}">${icon('edit')}<span aria-hidden="true">Kelola</span></a>`,
         ]),
         'Belum ada rumah. Tambahkan satu per satu atau import CSV.',
+        { caption: 'Daftar rumah dan status iuran' },
       )}
     `;
     return page(c, { title: 'Kelola Rumah', content, active: '/admin/houses' });
@@ -358,7 +362,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
 
   app.get('/admin/houses/new', (c) => {
     const content = `
-      <h2 class="page-title">Tambah rumah</h2>
+      <h1 class="page-title">Tambah rumah</h1>
       <p class="page-sub">Akun warga dibuat otomatis dengan password default dan wajib diganti saat login pertama.</p>
       <form method="post" action="/admin/houses" class="card pad">
         <div class="grid-2">
@@ -430,9 +434,9 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
       user.id,
       clientIp(c),
     );
-
     const content = `
-      <h2 class="page-title">Rumah ${esc(result.houseCode)} tersimpan</h2>
+
+      <h1 class="page-title">Rumah ${esc(result.houseCode)} tersimpan</h1>
       <p class="page-sub">Sampaikan kredensial awal ini ke penghuni. Password wajib diganti saat login pertama.</p>
       <div class="card pad">
         <p><strong>Username:</strong> ${esc(result.houseCode)}</p>
@@ -449,7 +453,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
 
   app.get('/admin/houses/import', (c) => {
     const content = `
-      <h2 class="page-title">Import CSV rumah</h2>
+      <h1 class="page-title">Import CSV rumah</h1>
       <p class="page-sub">Satu rumah per baris. Akun warga dibuat otomatis untuk setiap rumah baru.</p>
       <form method="post" action="/admin/houses/import" class="card pad">
         <label class="label" for="csv">Isi CSV</label>
@@ -480,7 +484,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
       : '';
 
     const content = `
-      <h2 class="page-title">Pratinjau import</h2>
+      <h1 class="page-title">Pratinjau import</h1>
       <p class="page-sub">${parsed.rows.length} rumah siap dibuat, ${parsed.errors.length} baris bermasalah.</p>
       ${
         parsed.rows.length
@@ -501,7 +505,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
               iconName: 'edit',
             })
       }
-      ${parsed.errors.length ? `<h3 class="page-title" style="font-size:16px">Baris yang dilewati</h3>${errorTable}` : ''}
+      ${parsed.errors.length ? `<h2 class="section-title">Baris yang dilewati</h2>${errorTable}` : ''}
       ${
         parsed.rows.length
           ? `<form method="post" action="/admin/houses/import/confirm">
@@ -527,7 +531,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
     const report = await importHouses(c.env, parsed.rows, user.id, clientIp(c));
 
     const content = `
-      <h2 class="page-title">Hasil import</h2>
+      <h1 class="page-title">Hasil import</h1>
       <p class="page-sub">${report.created.length} rumah dibuat, ${report.errors.length} gagal.</p>
       ${
         report.created.length
@@ -540,7 +544,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
       }
       ${
         report.errors.length
-          ? `<h3 class="page-title" style="font-size:16px">Gagal dibuat</h3>${table(
+          ? `<h2 class="section-title">Gagal dibuat</h2>${table(
               ['Baris', 'Masalah'],
               report.errors.map((error) => [`${error.line}`, esc(error.message)]),
               '',
@@ -565,7 +569,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
     const payments = await listPayments(c.env.DB, { houseId: house.id, limit: 50 });
 
     const content = `
-      <h2 class="page-title">${esc(house.house_code)}</h2>
+      <h1 class="page-title">${esc(house.house_code)}</h1>
       <p class="page-sub">${esc(occupancyLabel(house.occupancy_status))} · ${
         house.is_active === 1 ? 'dihitung wajib iuran' : 'tidak dihitung wajib iuran'
       }</p>
@@ -621,8 +625,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
         <form method="post" action="/admin/houses/${house.id}/reset-password">
           <button class="btn btn-ghost" type="submit">${icon('resetPassword')}<span>Reset ke password default</span></button>
         </form>
-      </div>
-      <h3 class="page-title" style="font-size:16px">Riwayat pembayaran rumah</h3>
+      <h2 class="section-title" id="riwayat-rumah">Riwayat pembayaran rumah</h2>
       ${table(
         ['Tanggal', 'Bulan', 'Nominal', 'Status'],
         payments.map((payment) => [
@@ -632,6 +635,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
           badge(payment.status),
         ]),
         'Belum ada pengajuan pembayaran dari rumah ini.',
+        { caption: 'Riwayat pembayaran rumah ini' },
       )}
     `;
     return page(c, { title: `Rumah ${house.block}`, content, active: '/admin/houses' });
@@ -666,7 +670,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
     return page(c, {
       title: 'Password Direset',
       active: '/admin/houses',
-      content: `<h2 class="page-title">Password akun direset</h2>
+      content: `<h1 class="page-title">Password akun direset</h1>
         <p class="page-sub">Sampaikan password sementara ini ke penghuni. Wajib diganti saat login berikutnya.</p>
         <div class="card pad"><p><strong>Password sementara:</strong> <span class="num">${esc(result.password)}</span></p></div>
         <a class="btn btn-primary" href="/admin/houses/${id}">${icon('back')}<span>Kembali ke detail rumah</span></a>`,
@@ -676,7 +680,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
   app.get('/admin/expenses', async (c) => {
     const expenses = await listExpenses(c.env.DB);
     const content = `
-      <h2 class="page-title">Pengeluaran kas</h2>
+      <h1 class="page-title">Pengeluaran kas</h1>
       <p class="page-sub">Setiap pengeluaran otomatis mengurangi saldo kas dan masuk ke laporan bulan berjalan.</p>
       <form method="post" action="/admin/expenses" enctype="multipart/form-data" class="card pad">
         <h3 style="margin-top:0;font-size:15px">Tambah pengeluaran</h3>
@@ -704,15 +708,16 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
         </div>
       </form>
       ${table(
-        ['Tanggal', 'Keterangan', 'Nominal', 'Bukti', ''],
+        ['Tanggal', 'Keterangan', 'Nominal', 'Bukti', 'Aksi'],
         expenses.map((expense) => [
           esc(formatDateID(expense.expense_date)),
           esc(expense.description),
           `<span class="num">${rupiah(expense.amount)}</span>`,
           expense.proof_file_id ? 'Ada' : '-',
-          `<a class="btn btn-ghost btn-sm" href="/admin/expenses/${expense.id}">${icon('view')}<span>Detail</span></a>`,
+          `<a class="btn btn-ghost btn-sm" href="/admin/expenses/${expense.id}" aria-label="Detail pengeluaran ${esc(formatDateID(expense.expense_date))} ${esc(expense.description)}">${icon('view')}<span aria-hidden="true">Detail</span></a>`,
         ]),
         'Belum ada pengeluaran tercatat.',
+        { caption: 'Daftar pengeluaran kas' },
       )}
     `;
     return page(c, { title: 'Pengeluaran', content, active: '/admin/expenses' });
@@ -776,7 +781,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
       : null;
 
     const content = `
-      <h2 class="page-title">Detail pengeluaran #${expense.id}</h2>
+      <h1 class="page-title">Detail pengeluaran #${expense.id}</h1>
       <div class="grid-cards">
         <div class="stat"><span>Tanggal</span><strong style="font-size:16px">${esc(formatDateID(expense.expense_date))}</strong></div>
         <div class="stat stat-focus"><span>Nominal</span><strong>${rupiah(expense.amount)}</strong></div>
@@ -804,9 +809,9 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
     const monthParam = c.req.query('month');
     const month = monthParam && isMonth(monthParam) ? monthParam : currentMonth();
     const report = await monthlyReport(c.env.DB, settings, month);
-
     const content = `
-      <h2 class="page-title">Laporan kas</h2>
+
+      <h1 class="page-title">Laporan kas</h1>
       <p class="page-sub">Rekap pemasukan dan pengeluaran per bulan.</p>
       <form method="get" action="/admin/reports" class="card pad">
         <label class="label" for="month">Bulan laporan</label>
@@ -815,14 +820,14 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
           <button class="btn btn-primary" type="submit">${icon('search')}<span>Tampilkan</span></button>
         </div>
       </form>
-      <h3 class="page-title" style="font-size:16px">${esc(monthLabel(month))}</h3>
+      <h2 class="section-title">${esc(monthLabel(month))}</h2>
       <div class="grid-cards">
         <div class="stat"><span>Saldo awal</span><strong>${rupiah(report.openingBalance)}</strong></div>
         <div class="stat"><span>Pemasukan</span><strong>${rupiah(report.income)}</strong></div>
         <div class="stat"><span>Pengeluaran</span><strong>${rupiah(report.expense)}</strong></div>
         <div class="stat stat-focus"><span>Saldo akhir</span><strong>${rupiah(report.closingBalance)}</strong></div>
       </div>
-      <h3 class="page-title" style="font-size:16px">Pemasukan terverifikasi</h3>
+      <h2 class="section-title">Pemasukan terverifikasi</h2>
       ${table(
         ['Tanggal', 'Rumah', 'Bulan dibayar', 'Nominal'],
         report.incomeRows.map((row) => [
@@ -832,8 +837,9 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
           `<span class="num">${rupiah(row.amount)}</span>`,
         ]),
         'Tidak ada pemasukan pada bulan ini.',
+        { caption: 'Pemasukan terverifikasi bulan laporan' },
       )}
-      <h3 class="page-title" style="font-size:16px">Pengeluaran</h3>
+      <h2 class="section-title">Pengeluaran</h2>
       ${table(
         ['Tanggal', 'Keterangan', 'Nominal'],
         report.expenseRows.map((row) => [
@@ -842,6 +848,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
           `<span class="num">${rupiah(row.amount)}</span>`,
         ]),
         'Tidak ada pengeluaran pada bulan ini.',
+        { caption: 'Pengeluaran bulan laporan' },
       )}
       <p class="note">${icon('info')}Saldo awal = saldo awal pengaturan + seluruh arus kas sebelum ${esc(monthLabel(month))}.</p>
     `;
@@ -851,7 +858,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
   app.get('/admin/settings', async (c) => {
     const settings = await getSettings(c.env.DB);
     const content = `
-      <h2 class="page-title">Pengaturan</h2>
+      <h1 class="page-title">Pengaturan</h1>
       <p class="page-sub">Perubahan berlaku untuk transaksi berikutnya, transaksi lama tidak berubah.</p>
       ${
         billingStartConfigured(settings)
@@ -942,7 +949,7 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
   app.get('/admin/audit', async (c) => {
     const logs = await listAuditLogs(c.env.DB, 150);
     const content = `
-      <h2 class="page-title">Audit log</h2>
+      <h1 class="page-title">Audit log</h1>
       <p class="page-sub">150 aktivitas terakhir. Log hanya bisa dibaca, tidak bisa diubah dari aplikasi.</p>
       <div class="audit-table">${table(
         ['Waktu', 'Aktor', 'Aksi', 'Entity', 'Perubahan', 'IP'],

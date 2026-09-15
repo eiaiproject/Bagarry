@@ -36,7 +36,7 @@ export function errorPage(c: Context<AppEnv>, title: string, message: string, st
       user: c.get('user'),
       ok: null,
       err: message,
-      content: `<h2 class="page-title">${title}</h2><p class="page-sub">Silakan kembali ke halaman sebelumnya.</p>`,
+      content: `<h1 class="page-title">${title}</h1><p class="page-sub">Silakan kembali ke halaman sebelumnya.</p>`,
       pendingCount: c.get('pendingCount'),
     }),
     status,
