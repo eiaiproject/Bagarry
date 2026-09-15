@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "amartha-bagarry",
+  "name": "bagarry",
   "main": "src/index.ts",
   "compatibility_date": "2025-11-01",
   "observability": { "enabled": true },
@@ -26,7 +26,7 @@
   ],
   "env": {
     "staging": {
-      "name": "amartha-bagarry-staging",
+      "name": "bagarry-staging",
       "vars": {
         "APP_NAME": "Kas Amartha Cluster Bagarry [STAGING]",
         "PBKDF2_ITERATIONS": "15000"
