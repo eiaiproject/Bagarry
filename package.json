@@ -12,8 +12,13 @@
     "db:migrate:local": "wrangler d1 migrations apply bagarry-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply bagarry-db --remote",
     "db:migrate:staging": "wrangler d1 migrations apply bagarry-db-staging --env staging --remote",
+    "db:reset:local": "rm -rf .wrangler/state/v3/d1 && npm run db:migrate:local",
     "db:seed:local": "wrangler d1 execute bagarry-db --local --file=seed/example-houses.sql && wrangler d1 execute bagarry-db --local --file=seed/example-accounts.sql",
+    "db:seed:demo:local": "npm run db:seed:local && wrangler d1 execute bagarry-db --local --file=seed/example-payments.sql",
     "db:seed:staging": "wrangler d1 execute bagarry-db-staging --env staging --remote --file=seed/example-houses.sql && wrangler d1 execute bagarry-db-staging --env staging --remote --file=seed/example-accounts.sql",
+    "smoke": "bash scripts/smoke.sh",
+    "click-through": "node scripts/click-through.mjs",
+    "test:e2e": "npm run db:reset:local && npm run db:seed:local && playwright test",
     "deploy:staging": "wrangler deploy --env staging"
   },
   "dependencies": {
