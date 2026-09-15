@@ -82,7 +82,7 @@ export function monthLabel(month: Month): string {
 /** "Mei – Jul 2026", "Jul 2026", atau "Mei, Agu 2026" bila tidak berurutan. */
 export function monthListLabel(months: Month[]): string {
   if (months.length === 0) return '-';
-  const sorted = [...months].sort();
+  const sorted = [...months].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   if (sorted.length === 1) return monthLabel(sorted[0]!);
   const first = sorted[0]!;
   const last = sorted[sorted.length - 1]!;

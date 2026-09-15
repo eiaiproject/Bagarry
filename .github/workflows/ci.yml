@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npm run typecheck
       - run: npm test
 
@@ -58,9 +58,9 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - name: Install Chromium untuk Playwright
-        run: npx playwright install --with-deps chromium
+        run: npx --package=@playwright/test@1.63.0 playwright install --with-deps chromium
       - name: Jalankan e2e (reset DB + server sendiri)
         run: npm run test:e2e
       - uses: actions/upload-artifact@v4
@@ -85,14 +85,14 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - name: Migrasi D1 staging
         run: npm run db:migrate:staging
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       - name: Deploy Worker staging
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@da0e0dfe58b3b117002a41a50e562d52e3b307331
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

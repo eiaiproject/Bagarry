@@ -138,7 +138,7 @@ export function validateMonthSelection(
   selected: Month[],
   unpaid: Month[],
 ): { ok: true; months: Month[] } | { ok: false; message: string } {
-  const months = [...new Set(selected)].sort();
+  const months = [...new Set(selected)].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   if (months.length === 0) return { ok: false, message: 'Pilih minimal satu bulan pembayaran.' };
   for (const month of months) {
     if (!isMonth(month)) return { ok: false, message: 'Format bulan tidak valid.' };
