@@ -48,11 +48,24 @@ export function emptyState(message: string, action?: { href: string; label: stri
   </div>`;
 }
 
-export function table(headers: string[], rows: string[][], emptyMessage: string): string {
+export interface TableOptions {
+  /** Dibaca screen reader, menjelaskan isi tabel. */
+  caption?: string;
+  /** Kelas pembungkus tambahan, mis. "arrears-table" untuk layout kartu di HP. */
+  wrapClass?: string;
+}
+export function table(
+  headers: string[],
+  rows: string[][],
+  emptyMessage: string,
+  options: TableOptions = {},
+): string {
   if (rows.length === 0) return emptyState(emptyMessage);
-  const head = headers.map((header) => `<th>${esc(header)}</th>`).join('');
+  const head = headers.map((header) => `<th scope="col">${esc(header)}</th>`).join('');
   const body = rows
     .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join('')}</tr>`)
     .join('');
-  return `<div class="table-wrap"><table class="table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+  const caption = options.caption ? `<caption class="sr-only">${esc(options.caption)}</caption>` : '';
+  const wrapClass = options.wrapClass ? ` table-wrap ${options.wrapClass}` : 'table-wrap';
+  return `<div class="${wrapClass.trim()}"><table class="table">${caption}<thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
 }

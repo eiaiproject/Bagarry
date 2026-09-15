@@ -2,7 +2,7 @@ import type { Hono } from 'hono';
 import type { AppEnv } from '../types';
 import { actionLabel, actorLabel, changeSummary, listAuditLogs } from '../lib/audit';
 import { parseHouseCsv } from '../lib/csv';
-import { currentMonth, formatDateID, formatDateTimeID, isMonth, jakartaDate, monthLabel, monthListLabel } from '../lib/date';
+import { currentMonth, formatDateID, formatDateTimeID, isMonth, jakartaDate, monthLabel, monthLabelFull, monthListLabel } from '../lib/date';
 import { createExpense, getExpense, listExpenses } from '../lib/expenses';
 import { deleteFile, storeFile, validateUploadFile } from '../lib/files';
 import { badge, emptyState, esc, rupiah, table } from '../lib/html';
@@ -46,63 +46,146 @@ export function registerAdminRoutes(app: Hono<AppEnv>): void {
 
     const counts = { lunas: 0, menunggu: 0, sudah: 0, belum: 0, nonaktif: 0 };
     for (const entry of statuses) counts[entry.info.status] += 1;
+    const configured = billingStartConfigured(settings);
+    const unconfiguredHouses = configured ? 0 : statuses.filter((entry) => entry.house.is_active === 1).length;
+
+    // Alert konfigurasi tepat di bawah judul: role=status karena nonmendesak,
+    // ikon aria-hidden, CTA link ke Pengaturan, membungkus sampai 320 px.
+    const configAlert = configured
+      ? ''
+      : `<div class="alert" role="status">${icon('warning')}
+        <div class="alert-body">
+          <p class="alert-title">Pengaturan tagihan belum lengkap</p>
+          <p>Bulan awal tagihan belum ditentukan. Untuk sementara, sistem memakai ${esc(
+            monthLabelFull(month),
+          )} untuk ${unconfiguredHouses} rumah aktif.</p>
+          <p class="alert-actions"><a class="btn btn-primary btn-sm" href="/admin/settings">${icon('settings')}<span>Atur sekarang</span></a></p>
+        </div>
+      </div>`;
+
+    // Aksi cepat: satu primer dinamis, sisanya sekunder. Semua route valid.
+    const primaryAction =
+      pending.length > 0
+        ? `<a class="btn btn-primary" href="/admin/payments/pending">${icon('inspect')}<span>Verifikasi ${pending.length} pembayaran</span></a>`
+        : `<a class="btn btn-primary" href="/admin/expenses">${icon('expenses')}<span>Tambah pengeluaran</span></a>`;
+    const quickActions = `
+      <section aria-labelledby="aksi-cepat">
+        <h2 class="section-title" id="aksi-cepat">Aksi cepat</h2>
+        <div class="quick">
+          ${primaryAction}
+          <a class="btn btn-ghost" href="/admin/houses">${icon('houses')}<span>Kelola rumah</span></a>
+          <a class="btn btn-ghost" href="/admin/reports">${icon('reports')}<span>Lihat laporan</span></a>
+        </div>
+      </section>`;
+
+    // Ringkasan saldo: saldo penuh sebaris di mobile. Saldo awal hanya dari
+    // pengaturan, tidak direkayasa. Konteks Rp0 dari data aktual periode ini.
+    const balanceContext =
+      totals.income === 0 && totals.expense === 0
+        ? `<span class="stat-hint">Belum ada transaksi tercatat pada periode ini.</span>`
+        : `<span class="stat-hint">Saldo awal ${rupiah(settings.openingBalance)} + pemasukan terverifikasi − pengeluaran.</span>`;
+    const balanceSection = `
+      <section aria-labelledby="ringkasan-saldo">
+        <h2 class="section-title" id="ringkasan-saldo">Ringkasan saldo</h2>
+        <div class="grid-balance">
+          <div class="stat stat-focus"><span>Saldo kas</span><strong class="num">${rupiah(balance)}</strong>${balanceContext}</div>
+          <div class="stat"><span>Pemasukan ${esc(monthLabel(month))}</span><strong class="num">${rupiah(totals.income)}</strong></div>
+          <div class="stat"><span>Pengeluaran ${esc(monthLabel(month))}</span><strong class="num">${rupiah(totals.expense)}</strong></div>
+        </div>
+      </section>`;
+
+    // Status: "Sudah bayar" = sebagian bulan sudah dibayar tetapi belum sampai
+    // bulan berjalan, "Lunas" = mencakup bulan berjalan. Penjelasan inline,
+    // bukan tooltip hover, supaya terbaca keyboard dan sentuh.
+    const statusSection = `
+      <section aria-labelledby="status-pembayaran">
+        <h2 class="section-title" id="status-pembayaran">Status pembayaran</h2>
+        <div class="grid-status">
+          <a class="stat stat-link" href="/admin/houses"><span>Belum bayar</span><strong>${counts.belum}</strong><span class="stat-more">Lihat rumah</span></a>
+          <a class="stat stat-link" href="/admin/payments/pending"><span>Menunggu verifikasi</span><strong>${counts.menunggu}</strong><span class="stat-hint">Bukti dikirim, menunggu bendahara.</span><span class="stat-more">Verifikasi</span></a>
+          <a class="stat stat-link" href="/admin/payments?status=verified"><span>Lunas</span><strong>${counts.lunas}</strong><span class="stat-hint">Sudah bayar sampai ${esc(monthLabel(month))}.</span><span class="stat-more">Riwayat</span></a>
+          <div class="stat"><span>Tidak aktif</span><strong>${counts.nonaktif}</strong><span class="stat-hint">Tidak dihitung wajib iuran.</span></div>
+        </div>
+        <p class="hint">Sebagian bulan sudah dibayar tetapi belum sampai bulan berjalan dihitung di daftar tunggakan di bawah.</p>
+      </section>`;
+
+    // Prioritas hari ini: data aktual, tanpa warna bahaya untuk hal tertunda.
+    const todoItems = [];
+    todoItems.push(
+      pending.length > 0
+        ? `<li>${icon('pending')}<span><strong>${pending.length} pembayaran</strong> perlu diverifikasi. <a href="/admin/payments/pending">Verifikasi sekarang</a></span></li>`
+        : `<li>${icon('approve')}<span>Tidak ada pembayaran yang perlu diverifikasi.</span></li>`,
+    );
+    const arrearsCount = statuses.filter((entry) => entry.info.unpaidMonths.length > 0).length;
+    if (arrearsCount > 0) {
+      todoItems.push(
+        `<li>${icon('houses')}<span><strong>${arrearsCount} rumah</strong> belum membayar. <a href="#daftar-tunggakan">Lihat daftar</a></span></li>`,
+      );
+    }
+    if (!configured) {
+      todoItems.push(
+        `<li>${icon('warning')}<span>Pengaturan tagihan belum lengkap. <a href="/admin/settings">Atur sekarang</a></span></li>`,
+      );
+    }
+    const todoSection = `
+      <section aria-labelledby="prioritas-hari-ini">
+        <h2 class="section-title" id="prioritas-hari-ini">Prioritas hari ini</h2>
+        <ul class="todo">${todoItems.join('')}</ul>
+      </section>`;
 
     const pendingTable = table(
-      ['Rumah', 'Bulan', 'Nominal', 'Diunggah', ''],
-      pending.map((payment) => [
+      ['Rumah', 'Bulan', 'Nominal', 'Diunggah', 'Aksi'],
+      pending.slice(0, 5).map((payment) => [
         `<strong>${esc(payment.block)}</strong>`,
         esc(monthListLabel(payment.months)),
         `<span class="num">${rupiah(payment.amount)}</span>`,
         esc(formatDateID(payment.created_at)),
-        `<a class="btn btn-primary btn-sm" href="/admin/payments/pending/${payment.id}">${icon(
-            'inspect',
-          )}<span>Periksa</span></a>`,
+        `<a class="btn btn-primary btn-sm" href="/admin/payments/pending/${payment.id}" aria-label="Periksa pembayaran ${esc(payment.block)} ${esc(monthListLabel(payment.months))}">${icon(
+          'inspect',
+        )}<span aria-hidden="true">Periksa</span></a>`,
       ]),
-      'Tidak ada pembayaran yang menunggu verifikasi.',
+      'Tidak ada pembayaran yang perlu diverifikasi saat ini.',
+      { caption: 'Pembayaran yang menunggu verifikasi bendahara' },
     );
+    const pendingMore =
+      pending.length > 5
+        ? `<p><a class="btn btn-ghost btn-sm" href="/admin/payments/pending">${icon('payments')}<span>Lihat semua ${pending.length} pembayaran</span></a></p>`
+        : '';
 
     const arrears = statuses.filter((entry) => entry.info.unpaidMonths.length > 0);
     const arrearsTable = table(
-      ['Rumah', 'Belum dibayar', 'Total tagihan', ''],
+      ['Rumah', 'Periode tertunggak', 'Total tunggakan', 'Aksi'],
       arrears.map((entry) => [
         `<strong>${esc(entry.house.block)}</strong>`,
-        esc(monthListLabel(entry.info.unpaidMonths)),
-        `<span class="num">${rupiah(entry.info.totalDue)}</span>`,
-        `<a class="btn btn-ghost btn-sm" href="/admin/houses/${entry.house.id}">${icon('houses')}<span>Detail</span></a>`,
+        `<span data-label="Periode tertunggak">${esc(
+          `${monthListLabel(entry.info.unpaidMonths)} (${entry.info.unpaidMonths.length} bulan)`,
+        )}</span>`,
+        `<span class="num" data-label="Total tunggakan">${rupiah(entry.info.totalDue)}</span>`,
+        `<span class="cell-action"><a class="btn btn-ghost btn-sm" href="/admin/houses/${entry.house.id}" aria-label="Lihat detail rumah ${esc(entry.house.block)}">${icon('houses')}<span aria-hidden="true">Lihat detail</span></a></span>`,
       ]),
       'Semua rumah aktif sudah membayar sampai bulan berjalan.',
+      { caption: 'Rumah dengan tunggakan iuran', wrapClass: 'arrears-table' },
     );
 
     const content = `
       <div>
-        <h2 class="page-title">Dashboard bendahara</h2>
-        <p class="page-sub">Bulan berjalan ${esc(monthLabel(month))} WIB.</p>
+        <h1 class="page-title">Dashboard bendahara</h1>
+        <p class="page-sub">Periode ${esc(monthLabelFull(month))}.</p>
       </div>
-      <div class="grid-cards">
-        <div class="stat stat-focus"><span>Saldo kas</span><strong>${rupiah(balance)}</strong></div>
-        <div class="stat"><span>Pemasukan bulan ini</span><strong>${rupiah(totals.income)}</strong></div>
-        <div class="stat"><span>Pengeluaran bulan ini</span><strong>${rupiah(totals.expense)}</strong></div>
-      </div>
-      <div class="grid-cards">
-        <div class="stat"><span>Lunas</span><strong>${counts.lunas}</strong></div>
-        <div class="stat"><span>Menunggu verifikasi</span><strong>${counts.menunggu}</strong></div>
-        <div class="stat"><span>Sudah bayar</span><strong>${counts.sudah}</strong></div>
-        <div class="stat"><span>Belum bayar</span><strong>${counts.belum}</strong></div>
-        <div class="stat"><span>Tidak aktif</span><strong>${counts.nonaktif}</strong></div>
-      </div>
-      <div>
-        <h3 class="page-title" style="font-size:16px">Menunggu verifikasi</h3>
-      </div>
-      ${pendingTable}
-      <div>
-        <h3 class="page-title" style="font-size:16px">Rumah dengan tunggakan</h3>
-      </div>
-      ${arrearsTable}
-      ${
-        billingStartConfigured(settings)
-          ? ''
-          : `<p class="note">${icon('warning')}Bulan awal tagihan global belum diatur. Sistem memakai bulan berjalan. Atur di <a href="/admin/settings">Pengaturan</a>.</p>`
-      }
+      ${configAlert}
+      ${quickActions}
+      ${balanceSection}
+      ${statusSection}
+      ${todoSection}
+      <section aria-labelledby="antrean-verifikasi" class="section-gap">
+        <h2 class="section-title" id="antrean-verifikasi">Menunggu verifikasi</h2>
+        ${pendingTable}
+        ${pendingMore}
+      </section>
+      <section aria-labelledby="daftar-tunggakan" class="section-gap">
+        <h2 class="section-title" id="daftar-tunggakan">Rumah dengan tunggakan</h2>
+        ${arrearsTable}
+      </section>
     `;
     return page(c, { title: 'Dashboard Bendahara', content, active: '/admin' });
   });

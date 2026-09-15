@@ -17,15 +17,46 @@ export interface NavItem {
   badge?: string;
 }
 
+export interface PageOptions {
+  title: string;
+  appName: string;
+  user: SessionUser | null;
+  content: string;
+  /** Path aktif, dipakai untuk menandai menu. */
+  active?: string;
+  ok?: string | null;
+  err?: string | null;
+  /** true bila halaman berada di area dalam (setelah login). */
+  container?: 'wide' | 'narrow';
+  /** Antrean menunggu verifikasi, ditampilkan sebagai angka di nav bendahara. */
+  pendingCount?: number;
+}
+
 const STYLES = `
-  :root { --brand:#0f766e; --brand-dark:#115e59; --ink:#1e293b; --line:#e2e8f0; }
-  * { box-sizing:border-box; }
-  body { margin:0; background:#f1f5f9; color:var(--ink);
+  :root {
+    --brand:#0f766e; --brand-dark:#115e59; --ink:#1e293b; --muted:#475569;
+    --line:#e2e8f0; --surface:#ffffff; --surface-soft:#f8fafc; --page:#f1f5f9;
+    --focus:#0d9488; --ok-bg:#dcfce7; --ok-ink:#14532d; --ok-line:#86efac;
+    --warn-bg:#fef3c7; --warn-ink:#92400e; --warn-line:#f59e0b;
+    --err-bg:#fee2e2; --err-ink:#7f1d1d; --err-line:#fca5a5;
+    --radius-sm:8px; --radius-md:10px; --radius-pill:999px;
+    --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px;
+    --container:1080px; --tap:44px;
+  }
+  *, *::before, *::after { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; background:var(--page); color:var(--ink);
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; line-height:1.5; }
   a { color:var(--brand-dark); }
   a:hover { text-decoration:underline; }
-  :focus-visible { outline:3px solid #0d9488; outline-offset:2px; }
+  a:active { text-decoration:underline; }
+  :focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
   .num { font-variant-numeric:tabular-nums; }
+  @media (prefers-reduced-motion:reduce){
+    *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+  }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
 
   .card { background:#fff; border:1px solid var(--line); border-radius:10px; }
   .pad { padding:16px; }
@@ -76,22 +107,48 @@ const STYLES = `
     background:#fff; color:#475569; font-size:14px; }
   .empty p { margin:0 0 12px; }
 
-  .stat { background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px; }
-  .stat span { display:block; font-size:12px; color:#475569; }
+  .stat { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-md); padding:14px; }
+  .stat span { display:block; font-size:12px; color:var(--muted); }
   .stat strong { display:block; font-size:22px; margin-top:4px; font-variant-numeric:tabular-nums; }
   .stat-focus { background:var(--brand); border-color:var(--brand-dark); }
   .stat-focus span { color:#ccfbf1; }
   .stat-focus strong { color:#fff; }
+  /* Kartu statistik yang bisa diklik: seluruh kartu satu anchor dengan state jelas. */
+  a.stat-link { display:block; color:inherit; text-decoration:none; }
+  a.stat-link:hover { border-color:var(--brand); text-decoration:none; }
+  a.stat-link:hover .stat-more { text-decoration:underline; }
+  .stat-more { display:block; margin-top:8px; font-size:13px; font-weight:600; color:var(--brand-dark); }
+  .stat-hint { display:block; margin-top:4px; font-size:12px; font-weight:400; color:var(--muted); }
 
   .icon { flex:none; vertical-align:-4px; }
-  .flash { border-radius:10px; padding:10px 14px; font-size:14px; margin-bottom:16px;
+  .flash { border-radius:var(--radius-md); padding:10px 14px; font-size:14px; margin-bottom:16px;
     display:flex; align-items:flex-start; gap:8px; }
   .flash .icon { vertical-align:0; margin-top:2px; }
-  .flash-ok { background:#dcfce7; color:#14532d; border:1px solid #86efac; }
-  .flash-err { background:#fee2e2; color:#7f1d1d; border:1px solid #fca5a5; }
-  .note { background:#f8fafc; border:1px solid var(--line); border-radius:10px;
-    padding:10px 12px; font-size:13px; color:#475569; }
+  .flash-ok { background:var(--ok-bg); color:var(--ok-ink); border:1px solid var(--ok-line); }
+  .flash-err { background:var(--err-bg); color:var(--err-ink); border:1px solid var(--err-line); }
+  .note { background:var(--surface-soft); border:1px solid var(--line); border-radius:var(--radius-md);
+    padding:10px 12px; font-size:13px; color:var(--muted); }
   .note .icon, .hint .icon { vertical-align:-3px; margin-right:4px; color:var(--brand-dark); }
+  /* Alert konfigurasi dashboard: ikon + teks + CTA, membungkus sampai 320 px. */
+  .alert { border-radius:var(--radius-md); padding:12px 14px; font-size:14px;
+    display:flex; align-items:flex-start; gap:10px; border:1px solid var(--warn-line);
+    background:var(--warn-bg); color:var(--warn-ink); }
+  .alert .icon { margin-top:2px; }
+  .alert-body { flex:1; min-width:0; }
+  .alert-title { margin:0 0 2px; font-size:14px; font-weight:700; }
+  .alert p { margin:0; }
+  .alert-actions { margin-top:8px; display:flex; flex-wrap:wrap; gap:8px; }
+  /* Aksi cepat: tombol besar 44 px, primer hanya satu. */
+  .quick { display:grid; gap:8px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+  .quick .btn { width:100%; }
+  /* Daftar prioritas hari ini: teks + link aksi, tanpa warna bahaya untuk hal tertunda. */
+  .todo { list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+  .todo li { display:flex; align-items:flex-start; gap:10px; background:var(--surface);
+    border:1px solid var(--line); border-radius:var(--radius-md); padding:10px 12px; font-size:14px; }
+  .todo .icon { margin-top:2px; width:16px; height:16px; }
+  /* Link aksi di daftar prioritas: target 44 px, boleh membungkus di HP. */
+  .todo li > span { flex:1; min-width:0; }
+  .todo a { font-weight:600; display:inline-flex; align-items:center; min-height:var(--tap); }
 `;
 
 const PUBLIC_NAV: NavItem[] = [{ href: '/', label: 'Papan Pengumuman', iconName: 'board' }];
@@ -127,51 +184,73 @@ export function navFor(user: SessionUser | null, pendingCount = 0): NavItem[] {
   return RESIDENT_NAV;
 }
 
-export interface PageOptions {
-  title: string;
-  appName: string;
-  user: SessionUser | null;
-  content: string;
-  /** Path aktif, dipakai untuk menandai menu. */
-  active?: string;
-  ok?: string | null;
-  err?: string | null;
-  /** true bila halaman berada di area dalam (setelah login). */
-  container?: 'wide' | 'narrow';
-  /** Antrean menunggu verifikasi, ditampilkan sebagai angka di nav bendahara. */
-  pendingCount?: number;
+
+/** Bottom nav mobile bendahara: 4 tujuan utama, sinkron dengan nav desktop. */
+function bottomNavLinks(items: NavItem[], active?: string): string {
+  const pick = (href: string): NavItem | undefined => items.find((item) => item.href === href);
+  const chosen = [pick('/admin'), pick('/admin/payments/pending'), pick('/admin/payments'), pick('/admin/houses')].filter(
+    (item): item is NavItem => Boolean(item),
+  );
+  return chosen
+    .map((item) => {
+      const isActive = active === item.href;
+      const badgeHtml = item.badge ? `<span class="nav-count" aria-hidden="true">${esc(item.badge)}</span>` : '';
+      const label = item.badge ? `${item.label} (${item.badge} menunggu)` : item.label;
+      return `<a href="${esc(item.href)}"${isActive ? ' aria-current="page"' : ''} aria-label="${esc(label)}">${icon(
+        item.iconName,
+        { size: 20 },
+      )}<span aria-hidden="true">${esc(item.label)}</span>${badgeHtml}</a>`;
+    })
+    .join('');
 }
 
 export function renderPage(options: PageOptions): string {
-  const nav = navFor(options.user, options.pendingCount ?? 0)
+  const pending = options.pendingCount ?? 0;
+  const items = navFor(options.user, pending);
+  const nav = items
     .map((item) => {
       const isActive = options.active === item.href;
-      const badgeHtml = item.badge ? `<span class="nav-count">${esc(item.badge)}</span>` : '';
+      const badgeHtml = item.badge ? `<span class="nav-count" aria-hidden="true">${esc(item.badge)}</span>` : '';
+      const label = item.badge ? `${item.label} (${item.badge} menunggu)` : item.label;
       return `<a class="nav-link${isActive ? ' nav-link-active' : ''}" href="${esc(item.href)}"${
         isActive ? ' aria-current="page"' : ''
-      }>${icon(item.iconName, { size: 18 })}<span>${esc(item.label)}</span>${badgeHtml}</a>`;
+      } aria-label="${esc(label)}">${icon(item.iconName, { size: 18 })}<span aria-hidden="true">${esc(
+        item.label,
+      )}</span>${badgeHtml}</a>`;
     })
     .join('');
+  const isStaging = options.appName.includes('[STAGING]');
+  const brandName = options.appName.replace(' [STAGING]', '');
+  const envBadge = isStaging ? `<span class="env-badge">STAGING</span>` : '';
 
   const who = options.user
     ? `<span class="who">${esc(options.user.role === 'admin' ? 'Bendahara' : options.user.block ?? options.user.username ?? 'Warga')}</span>`
     : `<a class="btn btn-primary btn-sm" href="/login">${icon('login')}<span>Masuk</span></a>`;
 
   const logout = options.user
-    ? `<form method="post" action="/logout" class="inline-form"><button class="btn btn-ghost btn-sm" type="submit">${icon(
+    ? `<form method="post" action="/logout" class="inline-form"><button class="btn btn-ghost btn-sm" type="submit" aria-label="Keluar dari akun">${icon(
         'logout',
-      )}<span>Keluar</span></button></form>`
+      )}<span aria-hidden="true">Keluar</span></button></form>`
     : '';
 
   const flash = [
-    options.ok ? `<div class="flash flash-ok">${icon('approve')}<span>${esc(options.ok)}</span></div>` : '',
-    options.err ? `<div class="flash flash-err">${icon('warning')}<span>${esc(options.err)}</span></div>` : '',
+    options.ok
+      ? `<div class="flash flash-ok" role="status">${icon('approve')}<span>${esc(options.ok)}</span></div>`
+      : '',
+    options.err
+      ? `<div class="flash flash-err" role="alert">${icon('warning')}<span>${esc(options.err)}</span></div>`
+      : '',
   ]
     .filter(Boolean)
     .join('');
 
-  const maxWidth = options.container === 'narrow' ? 'max-width:520px' : 'max-width:1080px';
+  // Bottom nav mobile: 4 tujuan utama + badge antrean, sinkron dengan nav desktop.
+  const bottomNav =
+    options.user?.role === 'admin'
+      ? `<nav class="bottom-nav" aria-label="Navigasi cepat bendahara">${bottomNavLinks(items, options.active)}</nav>`
+      : '';
 
+  const maxWidth = options.container === 'narrow' ? 'max-width:520px' : 'max-width:1080px';
   return `<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -180,75 +259,128 @@ export function renderPage(options: PageOptions): string {
 <title>${esc(options.title)} | ${esc(options.appName)}</title>
 <link rel="icon" href="data:,">
 <style>${STYLES}
-  header.site { background:#0f172a; color:#fff; }
-  .site-inner { margin:0 auto; max-width:1080px; padding:10px 16px; display:flex;
+  header.site { background:#0f172a; color:#fff; padding-top:env(safe-area-inset-top); }
+  .site-inner { margin:0 auto; max-width:var(--container); padding:10px 16px; display:flex;
     align-items:center; justify-content:space-between; gap:12px; }
-  .site-inner h1 { font-size:15px; margin:0; font-weight:650; }
-  .site-inner h1 a { color:#fff; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
-  .site-inner h1 .brand-mark { display:inline-flex; color:#5eead4; }
+  .site-inner .brand { font-size:15px; margin:0; font-weight:650; min-width:0; }
+  .site-inner .brand a { color:#fff; text-decoration:none; display:inline-flex; align-items:center; gap:8px; min-width:0; }
+  .brand-short { display:none; }
+  @media (max-width:640px){
+    .brand-full { display:none; }
+    .brand-short { display:inline; }
+    .who { display:none; }
+    .site-inner .brand { font-size:14px; }
+    .site-inner { gap:8px; padding:8px 12px; }
+  }
+  .site-inner .brand .brand-mark { display:inline-flex; color:#5eead4; }
   .who { font-size:13px; color:#cbd5e1; }
   .head-right { display:flex; align-items:center; gap:10px; }
+  /* Badge STAGING terpisah dari nama aplikasi: terlihat, tidak mendominasi. */
+  .env-badge { display:inline-block; padding:1px 8px; border:1px solid #5eead4; border-radius:var(--radius-pill);
+    color:#5eead4; font-size:11px; font-weight:700; letter-spacing:.04em; white-space:nowrap; }
   .inline-form { display:inline; margin:0; }
+  /* Skip link: hanya terlihat saat fokus keyboard. */
+  .skip-link { position:absolute; left:8px; top:-48px; z-index:50; background:#fff; color:var(--brand-dark);
+    padding:10px 14px; border-radius:var(--radius-sm); font-weight:700; transition:top .15s; }
+  .skip-link:focus-visible { top:8px; }
   nav.site { background:#fff; border-bottom:1px solid var(--line); }
-  .nav-inner { margin:0 auto; max-width:1080px; padding:0 8px; display:flex; gap:2px;
-    overflow-x:auto; }
+  .nav-inner { margin:0 auto; max-width:var(--container); padding:0 8px; display:flex; gap:2px;
+    overflow-x:auto; scrollbar-width:thin; }
   .nav-link { display:inline-flex; align-items:center; gap:6px; padding:12px 12px; font-size:14px;
     color:#334155; text-decoration:none; white-space:nowrap; border-bottom:2px solid transparent; }
   .nav-link .icon { color:#64748b; }
   .nav-link-active .icon { color:var(--brand-dark); }
+  .nav-link:hover { background:#f8fafc; text-decoration:none; }
   .nav-link-active { color:var(--brand-dark); border-bottom-color:var(--brand); font-weight:650; }
   /* Angka antrean di nav: satu-satunya aksen tambahan, hanya muncul bila ada yang menunggu. */
   .nav-count { display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px;
-    padding:0 6px; border-radius:999px; background:var(--brand); color:#fff; font-size:12px; font-weight:700; }
-  /* Nav admin 9 item tidak muat di 1280px dengan padding 12px: rapatkan di desktop lebar. */
-  @media (min-width:1024px){ .nav-link { padding:12px 8px; gap:5px; font-size:13px; } }
-  /* Tabel audit 6 kolom tidak muat di HP: kolom IP disembunyikan di layar sempit. */
-  @media (max-width:640px){ .audit-table .table th:nth-child(6), .audit-table .table td:nth-child(6) { display:none; } }
-  .brand-short { display:none; }
-  @media (max-width:480px){
-    .brand-full { display:none; }
-    .brand-short { display:inline; }
-    .who { display:none; }
-    .site-inner h1 { font-size:14px; }
+    padding:0 6px; border-radius:var(--radius-pill); background:var(--brand); color:#fff; font-size:12px; font-weight:700; }
+  /* Daftar tunggakan versi kartu: satu struktur, berubah layout via CSS di HP. */
+  @media (max-width:640px){
+    .arrears-table.table-wrap { overflow:visible; border:none; background:transparent; padding:0; }
+    .arrears-table thead { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+    .arrears-table table, .arrears-table tbody { display:block; width:100%; }
+    .arrears-table tbody { display:grid; gap:8px; }
+    .arrears-table tr { display:block; width:100%; box-sizing:border-box; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-md); padding:12px; }
+    .arrears-table td { display:block; border:none; padding:2px 0; }
+    .arrears-table td [data-label]::before { content:attr(data-label); display:block; font-size:12px; color:var(--muted); }
+    .arrears-table td .cell-action .btn, .arrears-table td .btn { width:100%; }
+    .arrears-table td:has(> .cell-action) { padding-top:8px; }
   }
-  .page-title { font-size:22px; margin:0 0 4px; }
-  .page-sub { margin:0; color:#475569; font-size:14px; }
+  .section-gap { margin-top:var(--space-5); }
   .grid-cards { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); }
   .grid-2 { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
-  footer.site { margin:0 auto; max-width:1080px; padding:0 16px 32px; color:#475569; font-size:12px; }
+  /* Ringkasan saldo: saldo penuh sebaris di mobile, 3 kolom proporsional di desktop. */
+  .grid-balance { display:grid; gap:12px; grid-template-columns:1fr; }
+  @media (min-width:640px){ .grid-balance { grid-template-columns:1.4fr 1fr 1fr; } }
+  /* Status pembayaran: 2 kolom di HP, 4 kolom di tablet/desktop. */
+  .grid-status { display:grid; gap:12px; grid-template-columns:repeat(2,1fr); }
+  @media (min-width:768px){ .grid-status { grid-template-columns:repeat(4,1fr); } }
+  footer.site { margin:0 auto; max-width:var(--container); padding:0 16px calc(32px + env(safe-area-inset-bottom)); color:var(--muted); font-size:12px; }
   @media (max-width:520px){ .grid-cards { grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); } }
+  .bottom-nav { display:none; }
+  @media (max-width:768px){
+    /* Bottom nav mobile: 4 item + safe-area, konten diberi ruang di bawah. */
+    .bottom-nav { display:flex; position:fixed; left:0; right:0; bottom:0; z-index:40;
+      background:var(--surface); border-top:1px solid var(--line);
+      padding-bottom:env(safe-area-inset-bottom); }
+    .bottom-nav a { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;
+      padding:8px 4px calc(8px + env(safe-area-inset-bottom)); font-size:11px; color:var(--muted);
+      text-decoration:none; min-height:var(--tap); justify-content:center; position:relative; }
+    .bottom-nav a[aria-current="page"] { color:var(--brand-dark); font-weight:700; }
+    .bottom-nav .nav-count { position:absolute; top:4px; right:calc(50% - 26px); }
+    body.has-bottom-nav main.site { padding-bottom:96px; }
+    body.has-bottom-nav footer.site { padding-bottom:calc(96px + env(safe-area-inset-bottom)); }
+  }
+  @media print {
+    header.site, nav.site, .bottom-nav, .quick, .skip-link { display:none !important; }
+    body { background:#fff; }
+    main.site { max-width:none; padding:0; }
+    .card, .table-wrap, .stat { border-color:#999; break-inside:avoid; }
+  }
 </style>
 </head>
-<body>
+<body${options.user?.role === 'admin' ? ' class="has-bottom-nav"' : ''}>
+<a class="skip-link" href="#konten-utama">Lewati ke konten utama</a>
 <header class="site">
   <div class="site-inner">
-    <h1><a href="/"><span class="brand-mark">${icon('brand', { size: 20 })}</span><span class="brand-full">${esc(
-      options.appName,
-    )}</span><span class="brand-short">${esc(options.appName.split(' ').slice(-1)[0] ?? 'Bagarry')}</span></a></h1>
+    <p class="brand"><a href="/" aria-label="Kas Amartha Cluster Bagarry, ke papan pengumuman"><span class="brand-mark">${icon('brand', { size: 20 })}</span><span class="brand-full">${esc(
+      brandName,
+    )}</span><span class="brand-short">Bagarry</span>${envBadge}</a></p>
     <div class="head-right">${who}${logout}</div>
   </div>
 </header>
-<nav class="site"><div class="nav-inner">${nav}</div></nav>
-<main class="site">
+<nav class="site" aria-label="Navigasi utama"><div class="nav-inner">${nav}</div></nav>
+<main class="site" id="konten-utama" tabindex="-1">
   ${flash}
   ${options.content}
 </main>
 <footer class="site">
   Zona waktu Asia/Jakarta · Nominal dalam Rupiah · Data diperbarui bendahara
 </footer>
+${bottomNav}
 <script>
-  // Halaman berpindah lewat muat ulang penuh, jadi tidak ada state "memuat" di klien.
-  // Satu-satunya jeda yang tidak terlihat pengguna adalah saat form dikirim ke server,
-  // dan di situ tombol dikunci supaya pengajuan tidak terkirim dua kali.
+  // Navigasi antar halaman memakai muat ulang penuh, jadi tidak ada state "memuat" di klien.
+  // Saat form dikirim ke server, tombol submit-nya dikunci supaya tidak terkirim dua kali.
+  // Validasi bawaan browser membatalkan submit sebelum event ini: tombol tidak tersentuh.
   document.addEventListener('submit', function (event) {
     var form = event.target;
     if (!form || form.tagName !== 'FORM') return;
     var button = form.querySelector('button[type="submit"]');
     if (!button || button.disabled) return;
     var label = button.querySelector('span');
+    var original = label ? label.textContent : null;
     if (label) label.textContent = 'Mengirim...';
     button.disabled = true;
     button.setAttribute('aria-busy', 'true');
+    // Bila submit dibatalkan (mis. validasi gagal), pulihkan tombol.
+    window.setTimeout(function () {
+      if (form.isConnected && !form.checkValidity()) {
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
+        if (label && original) label.textContent = original;
+      }
+    }, 0);
   });
 </script>
 </body>

@@ -78,6 +78,16 @@ export function monthLabel(month: Month): string {
   const name = MONTH_SHORT[Number(m) - 1] ?? m;
   return `${name} ${year}`;
 }
+/** "2026-09" -> "September 2026". Dipakai judul halaman dan kalimat natural. */
+const MONTH_FULL = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+];
+export function monthLabelFull(month: Month): string {
+  const [year, m] = month.split('-');
+  const name = MONTH_FULL[Number(m) - 1] ?? month;
+  return `${name} ${year}`;
+}
 
 /** "Mei – Jul 2026", "Jul 2026", atau "Mei, Agu 2026" bila tidak berurutan. */
 export function monthListLabel(months: Month[]): string {
