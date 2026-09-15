@@ -30,23 +30,21 @@ jobs:
 
   sonar:
     # Automatic Analysis aktif di SonarCloud untuk eiaiproject_Bagarry, jadi
-    # tidak ada scanner di CI. Job ini polling status quality gate publik
-    # (tanpa token) agar deploy tertahan bila gate merah.
+    # tidak ada scanner di CI. Quality gate dicek via action resmi yang dipin
+    # SHA (bukan curl pipe) agar lolos aturan S8482.
     name: SonarCloud quality gate
     runs-on: ubuntu-latest
     needs: quality
     steps:
-      - name: Tunggu dan cek quality gate SonarCloud
-        run: |
-          for i in $(seq 1 30); do
-            STATUS=$(curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=eiaiproject_Bagarry" | python3 -c "import json,sys; print(json.load(sys.stdin).get('projectStatus',{}).get('status','NONE'))")
-            echo "Percobaan $i: status=$STATUS"
-            if [ "$STATUS" = "OK" ]; then exit 0; fi
-            if [ "$STATUS" = "ERROR" ] || [ "$STATUS" = "FAILED" ]; then echo "Quality gate MERAH."; exit 1; fi
-            sleep 20
-          done
-          echo "Quality gate belum ada hasil (NONE) setelah 10 menit. Anggap gagal."
-          exit 1
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Tunggu analisis SonarCloud selesai
+        run: sleep 120
+      - uses: SonarSource/sonarqube-quality-gate-action@05570f3708d50ecedfb2d843b56a9c6f8f4813c
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   e2e:
     name: e2e Playwright
