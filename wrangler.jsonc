@@ -14,7 +14,7 @@
     {
       "binding": "DB",
       "database_name": "bagarry-db",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "5fd40617-6b1f-4d49-8a5b-5f13f1eeb128",
       "migrations_dir": "migrations"
     }
   ],
