@@ -1,0 +1,31 @@
+{
+  "name": "amartha-bagarry",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Papan pengumuman dan kas cluster Amartha Bagarry (Cloudflare Worker + D1 + R2)",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:migrate:local": "wrangler d1 migrations apply bagarry-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply bagarry-db --remote",
+    "db:migrate:staging": "wrangler d1 migrations apply bagarry-db-staging --env staging --remote",
+    "db:seed:local": "wrangler d1 execute bagarry-db --local --file=seed/example-houses.sql && wrangler d1 execute bagarry-db --local --file=seed/example-accounts.sql",
+    "db:seed:staging": "wrangler d1 execute bagarry-db-staging --env staging --remote --file=seed/example-houses.sql && wrangler d1 execute bagarry-db-staging --env staging --remote --file=seed/example-accounts.sql",
+    "deploy:staging": "wrangler deploy --env staging"
+  },
+  "dependencies": {
+    "hono": "^4.6.14",
+    "reicon": "^1.2.4",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260911.1",
+    "@playwright/test": "^1.63.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8",
+    "wrangler": "^4.0.0"
+  }
+}

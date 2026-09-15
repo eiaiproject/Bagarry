@@ -1,0 +1,50 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "amartha-bagarry",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-11-01",
+  "observability": { "enabled": true },
+  "vars": {
+    "APP_NAME": "Kas Amartha Cluster Bagarry",
+    // Iterasi PBKDF2. Workers membatasi maksimum 100.000 dan plan Free memberi 10 ms CPU
+    // per request, jadi 15.000 adalah nilai aman. Plan berbayar boleh naikkan ke 100000.
+    "PBKDF2_ITERATIONS": "15000"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bagarry-db",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "bagarry-files"
+    }
+  ],
+  "env": {
+    "staging": {
+      "name": "amartha-bagarry-staging",
+      "vars": {
+        "APP_NAME": "Kas Amartha Cluster Bagarry [STAGING]",
+        "PBKDF2_ITERATIONS": "15000"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "bagarry-db-staging",
+          "database_id": "ee7c64fb-e698-480a-8196-e5b4f000411e",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "BUCKET",
+          "bucket_name": "bagarry-files-staging"
+        }
+      ]
+    }
+  }
+}

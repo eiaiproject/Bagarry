@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="PRD, Database Schema, dan Wireframe Papan Pengumuman Kas Amartha Cluster Bagarry">
+<title>PRD + Database + Wireframe — Papan Pengumuman Kas Amartha Cluster Bagarry</title>
+<style>
+  :root{
+    --ink:#1f2937; --muted:#64748b; --bg:#f1f5f9; --card:#ffffff;
+    --primary:#0f766e; --primary-dark:#115e59; --line:#e2e8f0;
+    --green:#16a34a; --blue:#2563eb; --amber:#d97706; --red:#dc2626; --gray:#6b7280;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  .topbar{position:sticky;top:0;z-index:50;background:#0f172a;color:#fff;padding:10px 0}
+  .topbar .wrap{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .topbar strong{font-size:14px}
+  .btn-print{background:var(--primary);border:none;color:#fff;padding:7px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
+  .cover{background:linear-gradient(135deg,#0f766e 0%,#134e4a 60%,#0f172a 100%);color:#fff;padding:60px 0 48px}
+  .cover h1{margin:0 0 8px;font-size:34px;line-height:1.2}
+  .cover p{margin:4px 0;color:#ccfbf1}
+  .chips{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:999px;font-size:12px}
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 28px;margin:26px 0}
+  .toc h2{border:none;margin:0 0 10px;font-size:18px}
+  .toc ol{margin:0;padding-left:22px;columns:2;column-gap:36px;font-size:14px}
+  .toc a{color:var(--primary-dark);text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px;margin:22px 0}
+  h2{font-size:24px;border-bottom:3px solid var(--primary);padding-bottom:8px;margin-top:0}
+  h3{color:var(--primary-dark);font-size:18px;margin-top:26px}
+  h4{font-size:15px;margin:18px 0 6px}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:12px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f1f5f9}
+  tr:nth-child(even) td{background:#fafcff}
+  pre{background:#0f172a;color:#e2e8f0;padding:16px;border-radius:10px;overflow:auto;font-size:13px;line-height:1.55}
+  code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  :not(pre)>code{background:#eef2f7;color:#0f766e;padding:2px 6px;border-radius:6px;font-size:13px}
+  .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+  .badge.lunas{background:var(--green)} .badge.sudah{background:var(--blue)}
+  .badge.tunggu{background:var(--amber)} .badge.belum{background:var(--red)}
+  .badge.nonaktif{background:var(--gray)}
+  .callout{border-left:4px solid var(--primary);background:#f0fdfa;padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0;font-size:14px}
+  .callout.warn{border-left-color:var(--amber);background:#fffbeb}
+  .callout.danger{border-left-color:var(--red);background:#fef2f2}
+  ul,ol{font-size:14.5px}
+  /* ===== Wireframe styles ===== */
+  .wf{border:1px solid #cbd5e1;border-radius:12px;overflow:hidden;margin:18px 0;background:#fff;box-shadow:0 4px 14px rgba(15,23,42,.08)}
+  .wf-bar{display:flex;align-items:center;gap:6px;background:#e2e8f0;padding:8px 12px}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dot.r{background:#f87171}.dot.y{background:#fbbf24}.dot.g{background:#34d399}
+  .wf-url{margin-left:8px;background:#fff;border-radius:999px;padding:2px 14px;font-size:12px;color:#475569;flex:1;max-width:440px}
+  .wf-body{padding:18px;background:#f8fafc}
+  .wf-header{display:flex;justify-content:space-between;align-items:center;font-weight:700;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+  .wf-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:12px}
+  .wf-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px}
+  .wf-card span{display:block;font-size:12px;color:var(--muted)}
+  .wf-card strong{font-size:18px}
+  .wf-card.hero{background:var(--primary);border-color:var(--primary);color:#fff}
+  .wf-card.hero span{color:#ccfbf1}
+  .wf-table{width:100%;border-collapse:collapse;background:#fff;font-size:13px;margin:0}
+  .wf-table th,.wf-table td{border:1px solid var(--line);padding:6px 8px}
+  .wf-table th{background:#f1f5f9}
+  .wf-btn{display:inline-block;background:var(--primary);color:#fff;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600}
+  .wf-btn.ghost{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+  .wf-btn.danger{background:var(--red)}
+  .wf-btn.sm{padding:3px 9px;font-size:12px}
+  .wf-label{font-size:12px;font-weight:700;color:#475569}
+  .wf-input{background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:7px 10px;font-size:13px;color:#94a3b8;display:block;width:100%;margin:4px 0 12px}
+  .wf-note{font-size:12px;color:var(--muted);margin-top:8px}
+  .wf-modal{border:2px dashed #94a3b8;border-radius:10px;padding:14px;background:#fff;margin-top:12px}
+  .wf-check{font-size:13px;margin:3px 0}
+  .two-col{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  footer{padding:26px 0 40px;color:var(--muted);font-size:13px;text-align:center}
+  @media print{
+    .topbar,.btn-print{display:none!important}
+    body{background:#fff}
+    section{border:none;box-shadow:none;break-inside:auto}
+    .wf{break-inside:avoid;box-shadow:none}
+    pre{white-space:pre-wrap}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <strong>Dokumen Project — Amartha Cluster Bagarry</strong>
+    <button class="btn-print" onclick="window.print()">🖨 Print / Save PDF</button>
+  </div>
+</div>
+
+<header class="cover">
+  <div class="wrap">
+    <h1>Papan Pengumuman Kas<br>Amartha Cluster Bagarry</h1>
+    <p>Product Requirement Document (PRD) · Database Schema · Wireframe</p>
+    <p>Versi 1.0 — Draft siap development</p>
+    <div class="chips">
+      <span class="chip">Web App Full-stack</span>
+      <span class="chip">Cloudflare Pages + Workers</span>
+      <span class="chip">Cloudflare D1</span>
+      <span class="chip">Cloudflare R2</span>
+      <span class="chip">±100 Rumah</span>
+      <span class="chip">2 Role: Warga &amp; Bendahara</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h2>Daftar Isi</h2>
+  <ol>
+    <li><a href="#s1">Ringkasan Project</a></li>
+    <li><a href="#s2">Tujuan Project</a></li>
+    <li><a href="#s3">Ruang Lingkup</a></li>
+    <li><a href="#s4">Persona &amp; Role</a></li>
+    <li><a href="#s5">Asumsi Bisnis</a></li>
+    <li><a href="#s6">Sitemap</a></li>
+    <li><a href="#s7">Requirement Fungsional</a></li>
+    <li><a href="#s8">Aturan Bisnis</a></li>
+    <li><a href="#s9">Requirement Non-Fungsional</a></li>
+    <li><a href="#s10">Acceptance Criteria</a></li>
+    <li><a href="#s11">Rekomendasi Teknologi</a></li>
+    <li><a href="#s12">ERD &amp; Relasi Database</a></li>
+    <li><a href="#s13">Struktur Tabel &amp; DDL</a></li>
+    <li><a href="#s14">Seed Data Awal</a></li>
+    <li><a href="#s15">Logika Status Pembayaran</a></li>
+    <li><a href="#s16">Transaksi Verifikasi &amp; Reject</a></li>
+    <li><a href="#s17">Legenda Wireframe</a></li>
+    <li><a href="#s18">Wireframe Halaman Publik</a></li>
+    <li><a href="#s19">Wireframe Autentikasi</a></li>
+    <li><a href="#s20">Wireframe Halaman Warga</a></li>
+    <li><a href="#s21">Wireframe Halaman Bendahara</a></li>
+    <li><a href="#s22">Matriks Hak Akses</a></li>
+    <li><a href="#s23">Flow Utama Sistem</a></li>
+    <li><a href="#s24">Roadmap &amp; Checklist Go-Live</a></li>
+    <li><a href="#s25">Lampiran: API &amp; Struktur Project</a></li>
+  </ol>
+</nav>
+
+<!-- ================= PART A : PRD ================= -->
+
+<section id="s1">
+  <h2>1. Ringkasan Project</h2>
+  <p>Sistem ini adalah aplikasi web untuk menampilkan informasi kas cluster secara transparan kepada warga, sekaligus membantu bendahara mengelola:</p>
+  <ul>
+    <li>saldo kas,</li>
+    <li>status pembayaran iuran bulanan,</li>
+    <li>upload bukti transfer warga,</li>
+    <li>verifikasi pembayaran,</li>
+    <li>pencatatan pengeluaran,</li>
+    <li>laporan keuangan,</li>
+    <li>audit log aktivitas penting.</li>
+  </ul>
+  <p>Sistem memiliki 2 jenis pengguna utama: <strong>Bendahara (Admin)</strong> dan <strong>Warga (Akun Rumah)</strong>.</p>
+</section>
+
+<section id="s2">
+  <h2>2. Tujuan Project</h2>
+  <ol>
+    <li>Memudahkan bendahara melaporkan kondisi kas cluster.</li>
+    <li>Memberikan transparansi saldo dan arus kas kepada warga.</li>
+    <li>Mengurangi pertanyaan berulang ke bendahara.</li>
+    <li>Mencatat rumah yang sudah/belum membayar iuran.</li>
+    <li>Menyediakan bukti pembayaran dan verifikasi yang rapi.</li>
+    <li>Menyediakan laporan pemasukan dan pengeluaran.</li>
+    <li>Meningkatkan akuntabilitas melalui audit log.</li>
+  </ol>
+</section>
+
+<section id="s3">
+  <h2>3. Ruang Lingkup</h2>
+  <h3>3.1 Termasuk Scope</h3>
+  <table>
+    <tr><th>Area</th><th>Fitur</th></tr>
+    <tr><td>Papan pengumuman publik</td><td>Saldo kas, pemasukan/pengeluaran bulan berjalan, rekap status, daftar status rumah tanpa nama pemilik, tampilan responsif.</td></tr>
+    <tr><td>Akun warga</td><td>Login akun rumah, status pembayaran rumah sendiri, bulan belum dibayar, pilih bulan pembayaran, upload bukti transfer, status verifikasi, riwayat pembayaran, ganti password.</td></tr>
+    <tr><td>Dashboard bendahara</td><td>Login admin, dashboard saldo/rekap, kelola rumah, status semua rumah, verifikasi pembayaran, tolak bukti, catat pengeluaran, upload bukti pengeluaran (opsional), laporan, audit log, pengaturan.</td></tr>
+  </table>
+  <h3>3.2 Tidak Termasuk Scope Versi Awal</h3>
+  <ul>
+    <li>Notifikasi WhatsApp / email</li>
+    <li>Grafik / chart</li>
+    <li>Export PDF / Excel / CSV</li>
+    <li>PWA install</li>
+    <li>Multi-role pengurus</li>
+    <li>Iuran khusus &amp; pengumuman kegiatan</li>
+    <li>Denda keterlambatan</li>
+  </ul>
+</section>
+
+<section id="s4">
+  <h2>4. Persona &amp; Role</h2>
+  <h3>4.1 Bendahara / Admin</h3>
+  <p>Akun admin: <code>bendahara@bagarry.id</code></p>
+  <ul>
+    <li>Melihat semua data</li>
+    <li>Mengelola rumah</li>
+    <li>Verifikasi &amp; menolak pembayaran</li>
+    <li>Mencatat pengeluaran</li>
+    <li>Melihat bukti transaksi</li>
+    <li>Melihat audit log</li>
+    <li>Mengubah pengaturan</li>
+  </ul>
+  <h3>4.2 Warga / Resident</h3>
+  <p>Satu rumah memiliki satu akun.</p>
+  <table>
+    <tr><th>Item</th><th>Format / Contoh</th></tr>
+    <tr><td>Username</td><td><code>JenisRumah-BlokRumah</code> → <code>Lupine-C4/06</code></td></tr>
+    <tr><td>Password default</td><td><code>Bagarry[blok]</code> → <code>BagarryC4/06</code></td></tr>
+  </table>
+  <p><strong>Boleh:</strong> login, lihat status rumah sendiri, upload bukti, lihat riwayat sendiri, lihat papan umum, ganti password.</p>
+  <p><strong>Tidak boleh:</strong> nama pemilik rumah lain, bukti transfer rumah lain, detail pembayaran rumah lain, audit log, pengaturan.</p>
+</section>
+
+<section id="s5">
+  <h2>5. Asumsi Bisnis</h2>
+  <ol>
+    <li>Sistem berbentuk web app full-stack, deploy ke Cloudflare.</li>
+    <li>Database Cloudflare D1, file bukti di Cloudflare R2.</li>
+    <li>Satu rumah satu akun.</li>
+    <li>Iuran bulanan, nominal sama untuk semua rumah, tanpa denda.</li>
+    <li>Pembayaran boleh rapel.</li>
+    <li>Bukti transfer wajib diupload warga; sah setelah diverifikasi bendahara.</li>
+    <li>Bendahara dapat menyetujui atau menolak bukti.</li>
+    <li>Bukti transfer hanya dapat dilihat bendahara dan pemilik akun pengunggah.</li>
+    <li>Bukti pengeluaran opsional dan default hanya untuk bendahara.</li>
+    <li>Nama pemilik tidak ditampilkan ke warga.</li>
+    <li>Papan publik menampilkan nomor rumah + status tanpa nama pemilik.</li>
+    <li>Password default wajib diganti saat login pertama.</li>
+    <li>Rumah kosong / tanah kosong dapat ditandai aktif / nonaktif.</li>
+    <li>Audit log diperlukan untuk aktivitas penting.</li>
+  </ol>
+</section>
+
+<section id="s6">
+  <h2>6. Sitemap</h2>
+  <div class="two-col">
+    <div>
+      <h4>Publik</h4>
+      <pre>/                      Papan pengumuman
+/login                 Login warga &amp; bendahara</pre>
+      <h4>Warga</h4>
+      <pre>/warga                 Dashboard warga
+/warga/pembayaran      Upload bukti / bayar
+/warga/riwayat         Riwayat pembayaran
+/warga/password        Ganti password</pre>
+    </div>
+    <div>
+      <h4>Bendahara</h4>
+      <pre>/admin                  Dashboard bendahara
+/admin/houses           Kelola rumah
+/admin/payments         Kelola pembayaran
+/admin/payments/pending Verifikasi menunggu
+/admin/expenses         Kelola pengeluaran
+/admin/reports          Laporan
+/admin/settings         Pengaturan
+/admin/audit            Audit log
+/admin/password         Ganti password admin</pre>
+    </div>
+  </div>
+</section>
+
+<section id="s7">
+  <h2>7. Requirement Fungsional</h2>
+
+  <h3>7.1 Autentikasi</h3>
+  <table>
+    <tr><th>ID</th><th>Requirement</th><th>Deskripsi</th></tr>
+    <tr><td>FR-AUTH-01</td><td>Login warga</td><td>Login dengan username <code>house_code</code> dan password.</td></tr>
+    <tr><td>FR-AUTH-02</td><td>Login admin</td><td>Login dengan email <code>bendahara@bagarry.id</code> dan password.</td></tr>
+    <tr><td>FR-AUTH-03</td><td>Password default</td><td>Saat rumah dibuat, akun warga dibuat dengan password <code>Bagarry[blok]</code>.</td></tr>
+    <tr><td>FR-AUTH-04</td><td>Wajib ganti password</td><td>Jika <code>must_change_password = true</code>, setelah login diarahkan ke halaman ganti password.</td></tr>
+    <tr><td>FR-AUTH-05</td><td>Reset password oleh admin</td><td>Bendahara dapat mereset password akun rumah ke default / sementara.</td></tr>
+    <tr><td>FR-AUTH-06</td><td>Logout</td><td>Session dihapus, cookie invalid, kembali ke halaman publik/login.</td></tr>
+  </table>
+
+  <h3>7.2 Papan Pengumuman Publik</h3>
+  <table>
+    <tr><th>ID</th><th>Requirement</th><th>Deskripsi</th></tr>
+    <tr><td>FR-PUB-01</td><td>Saldo kas</td><td>Menampilkan saldo kas terbaru.</td></tr>
+    <tr><td>FR-PUB-02</td><td>Ringkasan bulan</td><td>Menampilkan pemasukan &amp; pengeluaran bulan berjalan.</td></tr>
+    <tr><td>FR-PUB-03</td><td>Rekap status</td><td>Total rumah aktif, lunas, menunggu verifikasi, sudah bayar, belum bayar.</td></tr>
+    <tr><td>FR-PUB-04</td><td>Daftar status rumah</td><td>Nomor rumah + status + keterangan bulan tertunggak, tanpa nama pemilik, tanpa bukti, tanpa search/filter.</td></tr>
+  </table>
+
+  <h3>7.3 Dashboard Warga</h3>
+  <table>
+    <tr><th>ID</th><th>Requirement</th><th>Deskripsi</th></tr>
+    <tr><td>FR-RES-01</td><td>Status rumah sendiri</td><td>Nomor rumah, status huni, status pembayaran, bulan belum dibayar, total tagihan.</td></tr>
+    <tr><td>FR-RES-02</td><td>Pilih bulan pembayaran</td><td>Pembayaran dimulai dari bulan tertunggak terlama, berurutan, boleh rapel, total otomatis.</td></tr>
+    <tr><td>FR-RES-03</td><td>Upload bukti transfer</td><td>File jpg/png/pdf maks 5 MB. Setelah submit status menjadi Menunggu Verifikasi.</td></tr>
+    <tr><td>FR-RES-04</td><td>Status verifikasi</td><td>Menunggu / Diverifikasi / Ditolak (+ alasan).</td></tr>
+    <tr><td>FR-RES-05</td><td>Riwayat pembayaran</td><td>Daftar pembayaran rumah sendiri; bukti dapat dilihat pemilik &amp; bendahara.</td></tr>
+  </table>
+
+  <h3>7.4 Verifikasi Pembayaran</h3>
+  <table>
+    <tr><th>ID</th><th>Requirement</th><th>Deskripsi</th></tr>
+    <tr><td>FR-PAY-01</td><td>Daftar menunggu verifikasi</td><td>Halaman khusus berisi payment berstatus pending.</td></tr>
+    <tr><td>FR-PAY-02</td><td>Lihat bukti</td><td>Bukti hanya dapat diakses bendahara &amp; pemilik akun pengunggah.</td></tr>
+    <tr><td>FR-PAY-03</td><td>Setujui (“Sudah Bayar”)</td><td>Payment verified, items paid, paid_until update, ledger income, saldo bertambah, audit log.</td></tr>
+    <tr><td>FR-PAY-04</td><td>Tolak</td><td>Payment rejected + alasan; bulan kembali belum dibayar; warga dapat upload ulang; audit log.</td></tr>
+    <tr><td>FR-PAY-05</td><td>Kunci setelah submit</td><td>Warga tidak dapat mengubah/menghapus pengajuan berstatus pending.</td></tr>
+  </table>
+
+  <h3>7.5 Pengeluaran Kas</h3>
+  <table>
+    <tr><th>ID</th><th>Requirement</th><th>Deskripsi</th></tr>
+    <tr><td>FR-EXP-01</td><td>Tambah pengeluaran</td><td>Tanggal, nominal, keterangan, bukti opsional.</td></tr>
+    <tr><td>FR-EXP-02</td><td>Masuk laporan otomatis</td><td>Ledger expense dibuat, saldo berkurang, tampil di laporan, audit log.</td></tr>
+    <tr><td>FR-EXP-03</td><td>Daftar pengeluaran</td><td>Tabel tanggal, keterangan, nominal, pembuat, aksi.</td></tr>
+    <tr><td>FR-EXP-04</td><td>Detail pengeluaran</td><td>Detail + bukti (default hanya bendahara).</td></tr>
+  </table>
+
+  <h3>7.6 Laporan</h3>
+  <table>
+    <tr><th>ID</th><th>Requirement</th><th>Deskripsi</th></tr>
+    <tr><td>FR-REP-01</td><td>Laporan global</td><td>Saldo awal, pemasukan, pengeluaran, saldo akhir; filter bulan &amp; tahun.</td></tr>
+    <tr><td>FR-REP-02</td><td>Daftar pemasukan</td><td>Pembayaran verified: tanggal verifikasi, rumah, bulan, nominal.</td></tr>
+    <tr><td>FR-REP-03</td><td>Daftar pengeluaran</td><td>Tanggal, keterangan, nominal.</td></tr>
+    <tr><td>FR-REP-04</td><td>Publik vs admin</td><td>Warga melihat ringkasan global; bendahara melihat detail + filter/search.</td></tr>
+  </table>
+
+  <h3>7.7 Kelola Rumah</h3>
+  <table>
+    <tr><th>ID</th><th>Requirement</th><th>Deskripsi</th></tr>
+    <tr><td>FR-HSE-01</td><td>Daftar rumah</td><td>Kode, blok, status huni, aktif, status bayar, paid until, aksi.</td></tr>
+    <tr><td>FR-HSE-02</td><td>Tambah rumah</td><td>Otomatis membuat house_code, akun warga, password default, must_change_password = true.</td></tr>
+    <tr><td>FR-HSE-03</td><td>Edit rumah</td><td>Ubah status huni/aktif/catatan; house_code tidak bebas diubah.</td></tr>
+    <tr><td>FR-HSE-04</td><td>Nonaktifkan rumah</td><td>Rumah nonaktif tidak dihitung dalam rekap wajib iuran.</td></tr>
+    <tr><td>FR-HSE-05</td><td>Import CSV</td><td>Import massal ±100 rumah + pembuatan akun otomatis, dengan validasi &amp; preview.</td></tr>
+  </table>
+
+  <h3>7.8 Pengaturan</h3>
+  <table>
+    <tr><th>ID</th><th>Requirement</th><th>Deskripsi</th></tr>
+    <tr><td>FR-SET-01</td><td>Nominal iuran</td><td>Dapat diubah; tidak mengubah transaksi lama.</td></tr>
+    <tr><td>FR-SET-02</td><td>Saldo awal</td><td>Saldo awal + tanggal saldo awal.</td></tr>
+    <tr><td>FR-SET-03</td><td>Bulan awal tagihan</td><td>Global billing start month (format YYYY-MM), dapat di-override per rumah.</td></tr>
+  </table>
+
+  <h3>7.9 Audit Log</h3>
+  <table>
+    <tr><th>ID</th><th>Requirement</th><th>Deskripsi</th></tr>
+    <tr><td>FR-AUD-01</td><td>Aktivitas dicatat</td><td>Login, logout, ganti/reset password, CRUD rumah, upload/approve/reject payment, expense, ubah pengaturan.</td></tr>
+    <tr><td>FR-AUD-02</td><td>Isi log</td><td>Waktu, aktor, aksi, entity type/id, old values, new values.</td></tr>
+    <tr><td>FR-AUD-03</td><td>Akses</td><td>Hanya bendahara yang dapat melihat audit log.</td></tr>
+  </table>
+</section>
+
+<section id="s8">
+  <h2>8. Aturan Bisnis</h2>
+  <h3>8.1 Status Pembayaran</h3>
+  <table>
+    <tr><th>Status</th><th>Kondisi</th></tr>
+    <tr><td><span class="badge belum">Belum Bayar</span></td><td>Tidak ada pembayaran verified dan tidak ada pending.</td></tr>
+    <tr><td><span class="badge tunggu">Menunggu Verifikasi</span></td><td>Ada bukti terupload, belum diverifikasi bendahara.</td></tr>
+    <tr><td><span class="badge sudah">Sudah Bayar</span></td><td>Ada pembayaran verified tetapi belum sampai bulan berjalan.</td></tr>
+    <tr><td><span class="badge lunas">Lunas</span></td><td>Pembayaran verified sudah mencakup bulan berjalan atau lebih.</td></tr>
+  </table>
+  <h3>8.2 Prioritas Status</h3>
+  <p>Jika ada pembayaran pending, status utama = <strong>Menunggu Verifikasi</strong>, namun sistem tetap menampilkan “sudah bayar sampai bulan X” dan “menunggu verifikasi untuk bulan Y”.</p>
+  <h3>8.3 Perhitungan Saldo</h3>
+  <pre>Saldo = saldo_awal + total pemasukan verified - total pengeluaran
+
+- Pending payment TIDAK menambah saldo.
+- Rejected payment TIDAK menambah saldo.</pre>
+  <h3>8.4 Format &amp; Zona Waktu</h3>
+  <ul>
+    <li>Zona waktu: <code>Asia/Jakarta</code> (bulan berjalan mengikuti WIB).</li>
+    <li>Format bulan: <code>YYYY-MM</code> (contoh <code>2026-07</code>).</li>
+    <li>Nominal uang disimpan sebagai integer rupiah (contoh <code>50000</code>), bukan float.</li>
+  </ul>
+</section>
+
+<section id="s9">
+  <h2>9. Requirement Non-Fungsional</h2>
+  <table>
+    <tr><th>Kategori</th><th>Requirement</th></tr>
+    <tr><td>Keamanan</td><td>Password di-hash; session cookie HttpOnly; file R2 tidak public; akses file dicek backend; rate limit login; pemisahan role; audit log tidak dapat diubah dari UI.</td></tr>
+    <tr><td>Privasi</td><td>Nama pemilik tidak tampil publik; bukti transfer tidak tampil publik; warga hanya akses data rumah sendiri; bukti pengeluaran default hanya bendahara.</td></tr>
+    <tr><td>Performa</td><td>Skala awal ±100 rumah; halaman publik ringan; dashboard admin responsif.</td></tr>
+    <tr><td>Responsif</td><td>Mobile-friendly karena warga mengakses lewat HP.</td></tr>
+    <tr><td>Auditability</td><td>Semua perubahan penting tercatat di audit log.</td></tr>
+  </table>
+</section>
+
+<section id="s10">
+  <h2>10. Acceptance Criteria</h2>
+  <table>
+    <tr><th>Skenario</th><th>Kriteria</th></tr>
+    <tr><td>Login warga</td><td>Username+password benar → masuk dashboard warga. Jika password default → diarahkan ganti password.</td></tr>
+    <tr><td>Upload bukti</td><td>Pilih bulan + upload bukti → status Menunggu Verifikasi; saldo belum bertambah.</td></tr>
+    <tr><td>Approve</td><td>Klik “Sudah Bayar” → payment verified, paid_until bertambah, ledger income dibuat, saldo bertambah, audit log tercatat.</td></tr>
+    <tr><td>Reject</td><td>Tolak + alasan → payment rejected, bulan kembali belum dibayar, warga bisa upload ulang.</td></tr>
+    <tr><td>Pengeluaran</td><td>Disimpan → ledger expense dibuat, saldo berkurang, tampil di laporan.</td></tr>
+    <tr><td>Papan publik</td><td>Menampilkan saldo, rekap, daftar status rumah tanpa nama pemilik; bukti &amp; data sensitif tidak dapat diakses.</td></tr>
+  </table>
+</section>
+
+<section id="s11">
+  <h2>11. Rekomendasi Teknologi</h2>
+  <pre>Frontend   : Cloudflare Pages (SvelteKit utama / Next.js alternatif)
+Backend    : Cloudflare Workers
+Database   : Cloudflare D1 (SQLite)
+Storage    : Cloudflare R2 (bukti transfer &amp; pengeluaran)
+ORM        : Drizzle ORM
+Validation : Zod
+Auth       : Custom session cookie HttpOnly / JWT
+Styling    : Tailwind CSS</pre>
+</section>
+
+<!-- ================= PART B : DATABASE ================= -->
+
+<section id="s12">
+  <h2>12. ERD &amp; Relasi Database</h2>
+  <pre>houses
+  |
+  |-- users            (1 house : 1 user resident)
+  |
+  |-- payments         (1 house : banyak payments)
+        |
+        |-- payment_items   (1 payment : banyak bulan)
+        |
+        |-- files           (1 payment : 1 bukti transfer)
+
+expenses
+  |
+  |-- files            (1 expense : 1 bukti pengeluaran, opsional)
+
+ledger_entries
+  |
+  |-- payments         (income saat verified)
+  |-- expenses         (expense saat dicatat)
+
+audit_logs
+  |
+  |-- users            (aktor)</pre>
+</section>
+
+<section id="s13">
+  <h2>13. Struktur Tabel &amp; DDL (SQLite / Cloudflare D1)</h2>
+
+  <h3>13.1 settings</h3>
+  <pre>CREATE TABLE settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);</pre>
+
+  <h3>13.2 houses</h3>
+  <table>
+    <tr><th>Field</th><th>Keterangan</th></tr>
+    <tr><td>house_type</td><td>Jenis rumah, contoh: Lupine</td></tr>
+    <tr><td>block</td><td>Blok rumah, contoh: C4/06</td></tr>
+    <tr><td>house_code</td><td>Username warga, contoh: Lupine-C4/06 (UNIQUE)</td></tr>
+    <tr><td>occupancy_status</td><td>berpenghuni / kosong / tanah_kosong / belum_dihuni</td></tr>
+    <tr><td>is_active</td><td>Apakah rumah dihitung wajib iuran</td></tr>
+    <tr><td>billing_start_month</td><td>Override bulan awal tagihan per rumah</td></tr>
+    <tr><td>paid_until</td><td>Bulan terakhir yang sudah dibayar berurutan</td></tr>
+  </table>
+  <pre>CREATE TABLE houses (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  house_type TEXT NOT NULL,
+  block TEXT NOT NULL,
+  house_code TEXT NOT NULL UNIQUE,
+  occupancy_status TEXT NOT NULL DEFAULT 'berpenghuni'
+    CHECK (occupancy_status IN ('berpenghuni','kosong','tanah_kosong','belum_dihuni')),
+  is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0,1)),
+  billing_start_month TEXT,
+  paid_until TEXT,
+  notes TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX idx_houses_active ON houses(is_active);
+CREATE INDEX idx_houses_house_code ON houses(house_code);</pre>
+
+  <h3>13.3 users</h3>
+  <table>
+    <tr><th>Role</th><th>Username</th><th>Email</th><th>House</th></tr>
+    <tr><td>admin</td><td>boleh null</td><td>wajib</td><td>null</td></tr>
+    <tr><td>resident</td><td>wajib</td><td>boleh null</td><td>wajib</td></tr>
+  </table>
+  <pre>CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  role TEXT NOT NULL CHECK (role IN ('admin','resident')),
+  house_id INTEGER UNIQUE,
+  email TEXT UNIQUE,
+  username TEXT UNIQUE,
+  password_hash TEXT NOT NULL,
+  must_change_password INTEGER NOT NULL DEFAULT 1 CHECK (must_change_password IN (0,1)),
+  is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0,1)),
+  last_login_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (house_id) REFERENCES houses(id) ON DELETE SET NULL
+);
+CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_house_id ON users(house_id);</pre>
+
+  <h3>13.4 files</h3>
+  <pre>CREATE TABLE files (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  file_type TEXT NOT NULL CHECK (file_type IN ('payment_proof','expense_proof')),
+  original_name TEXT NOT NULL,
+  storage_key TEXT NOT NULL,
+  mime_type TEXT,
+  size_bytes INTEGER,
+  uploaded_by INTEGER,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE INDEX idx_files_type ON files(file_type);</pre>
+  <p class="wf-note">File fisik disimpan di Cloudflare R2; tabel ini hanya metadata. Contoh storage_key: <code>payments/2026/07/abc123.jpg</code></p>
+
+  <h3>13.5 payments</h3>
+  <pre>CREATE TABLE payments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  house_id INTEGER NOT NULL,
+  created_by INTEGER,
+  period_start TEXT NOT NULL,
+  period_end TEXT NOT NULL,
+  months_count INTEGER NOT NULL,
+  amount INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending','verified','rejected')),
+  proof_file_id INTEGER,
+  note TEXT,
+  verified_by INTEGER,
+  verified_at TEXT,
+  rejected_reason TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (house_id) REFERENCES houses(id) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (proof_file_id) REFERENCES files(id) ON DELETE SET NULL,
+  FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE INDEX idx_payments_house ON payments(house_id);
+CREATE INDEX idx_payments_status ON payments(status);
+CREATE INDEX idx_payments_created_at ON payments(created_at);</pre>
+
+  <h3>13.6 payment_items</h3>
+  <pre>CREATE TABLE payment_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  payment_id INTEGER NOT NULL,
+  house_id INTEGER NOT NULL,
+  period_month TEXT NOT NULL,          -- format YYYY-MM
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending','paid','rejected')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE CASCADE,
+  FOREIGN KEY (house_id) REFERENCES houses(id) ON DELETE CASCADE
+);
+CREATE INDEX idx_payment_items_house_month ON payment_items(house_id, period_month);
+CREATE INDEX idx_payment_items_payment ON payment_items(payment_id);
+
+-- Mencegah bulan yang sama pending/paid dua kali
+CREATE UNIQUE INDEX uniq_house_active_month
+ON payment_items(house_id, period_month)
+WHERE status IN ('pending','paid');</pre>
+
+  <h3>13.7 expenses</h3>
+  <pre>CREATE TABLE expenses (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  expense_date TEXT NOT NULL,
+  description TEXT NOT NULL,
+  amount INTEGER NOT NULL,
+  proof_file_id INTEGER,
+  created_by INTEGER,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (proof_file_id) REFERENCES files(id) ON DELETE SET NULL,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE INDEX idx_expenses_date ON expenses(expense_date);</pre>
+
+  <h3>13.8 ledger_entries</h3>
+  <pre>CREATE TABLE ledger_entries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  entry_date TEXT NOT NULL,
+  entry_type TEXT NOT NULL CHECK (entry_type IN ('income','expense')),
+  amount INTEGER NOT NULL,
+  description TEXT NOT NULL,
+  house_id INTEGER,
+  payment_id INTEGER,
+  expense_id INTEGER,
+  created_by INTEGER,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (house_id) REFERENCES houses(id) ON DELETE SET NULL,
+  FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE SET NULL,
+  FOREIGN KEY (expense_id) REFERENCES expenses(id) ON DELETE SET NULL,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE INDEX idx_ledger_date ON ledger_entries(entry_date);
+CREATE INDEX idx_ledger_type ON ledger_entries(entry_type);</pre>
+
+  <h3>13.9 audit_logs</h3>
+  <pre>CREATE TABLE audit_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  actor_id INTEGER,
+  action TEXT NOT NULL,
+  entity_type TEXT,
+  entity_id INTEGER,
+  old_values TEXT,
+  new_values TEXT,
+  ip_address TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE INDEX idx_audit_created_at ON audit_logs(created_at);
+CREATE INDEX idx_audit_action ON audit_logs(action);</pre>
+  <p class="wf-note">Contoh action: <code>login, logout, change_password, reset_password, create_house, update_house, create_payment, approve_payment, reject_payment, create_expense, update_settings</code></p>
+</section>
+
+<section id="s14">
+  <h2>14. Seed Data Awal</h2>
+  <pre>-- Settings
+INSERT INTO settings (key, value) VALUES
+('monthly_fee', '50000'),
+('opening_balance', '0'),
+('opening_balance_date', '2026-07-01'),
+('global_billing_start_month', '2026-01');
+
+-- Contoh rumah
+INSERT INTO houses (house_type, block, house_code, occupancy_status, is_active) VALUES
+('Lupine', 'C4/06', 'Lupine-C4/06', 'berpenghuni', 1),
+('Lupine', 'C4/07', 'Lupine-C4/07', 'kosong', 1),
+('Lupine', 'C4/08', 'Lupine-C4/08', 'tanah_kosong', 0);
+
+-- Admin &amp; user warga dibuat lewat aplikasi (password di-hash):
+-- admin    : email = bendahara@bagarry.id, must_change_password = 1
+-- resident : username = house_code, password default = 'Bagarry' + block</pre>
+</section>
+
+<section id="s15">
+  <h2>15. Logika Status Pembayaran</h2>
+  <pre>current_month   = bulan sekarang (YYYY-MM, zona Asia/Jakarta)
+required_months = billing_start_month .. current_month
+paid_months     = payment_items.status = 'paid'
+pending_months  = payment_items.status = 'pending'
+
+if pending_months tidak kosong:
+    status = "Menunggu Verifikasi"
+else:
+    unpaid = required_months - paid_months
+    if unpaid kosong:            status = "Lunas"
+    else if paid_months ada:     status = "Sudah Bayar"
+    else:                        status = "Belum Bayar"</pre>
+  <h3>Contoh</h3>
+  <table>
+    <tr><th>Kondisi (bulan berjalan 2026-07)</th><th>Status</th><th>Keterangan</th></tr>
+    <tr><td>Paid 01–04, pending kosong</td><td><span class="badge sudah">Sudah Bayar</span></td><td>Sampai Apr 2026; belum bayar Mei–Jul</td></tr>
+    <tr><td>Paid 01–07, pending kosong</td><td><span class="badge lunas">Lunas</span></td><td>Lunas sampai Jul 2026</td></tr>
+    <tr><td>Paid 01–04, pending 05–06</td><td><span class="badge tunggu">Menunggu Verifikasi</span></td><td>Sudah bayar s/d Apr; menunggu Mei–Jun; belum bayar Jul</td></tr>
+    <tr><td>Paid kosong, pending kosong</td><td><span class="badge belum">Belum Bayar</span></td><td>Belum bayar Jan–Jul</td></tr>
+  </table>
+</section>
+
+<section id="s16">
+  <h2>16. Transaksi Verifikasi &amp; Reject</h2>
+  <h3>16.1 Saat bendahara klik “Sudah Bayar”</h3>
+  <pre>1. UPDATE payments SET status='verified', verified_at=now, verified_by=admin_id
+2. UPDATE payment_items SET status='paid' WHERE payment_id=?
+3. Hitung ulang houses.paid_until (bulan paid berurutan terlama)
+4. UPDATE houses SET paid_until=?
+5. INSERT ledger_entries (entry_type='income', amount, payment_id, house_id)
+6. INSERT audit_logs (action='approve_payment')</pre>
+  <h3>16.2 Saat bendahara menolak</h3>
+  <pre>1. UPDATE payments SET status='rejected', rejected_reason=?
+2. UPDATE payment_items SET status='rejected' WHERE payment_id=?
+3. houses.paid_until TIDAK berubah
+4. INSERT audit_logs (action='reject_payment')</pre>
+</section>
+
+<!-- ================= PART C : WIREFRAME ================= -->
+
+<section id="s17">
+  <h2>17. Legenda Wireframe</h2>
+  <p>Wireframe di bawah bersifat struktural (bukan desain visual final). Badge status:</p>
+  <p>
+    <span class="badge lunas">Lunas</span>
+    <span class="badge sudah">Sudah Bayar</span>
+    <span class="badge tunggu">Menunggu Verifikasi</span>
+    <span class="badge belum">Belum Bayar</span>
+    <span class="badge nonaktif">Nonaktif</span>
+  </p>
+</section>
+
+<section id="s18">
+  <h2>18. Wireframe Halaman Publik</h2>
+  <h3>18.1 Papan Pengumuman — <code>/</code></h3>
+  <div class="wf">
+    <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">amartha-bagarry.pages.dev/</span></div>
+    <div class="wf-body">
+      <div class="wf-header"><span>Papan Kas Amartha Cluster Bagarry</span><span class="wf-btn ghost">Login Warga / Bendahara</span></div>
+      <div class="wf-grid">
+        <div class="wf-card hero"><span>Saldo Kas</span><strong>Rp5.300.000</strong></div>
+        <div class="wf-card"><span>Pemasukan Bulan Ini</span><strong>Rp4.500.000</strong></div>
+        <div class="wf-card"><span>Pengeluaran Bulan Ini</span><strong>Rp1.200.000</strong></div>
+      </div>
+      <div class="wf-grid">
+        <div class="wf-card"><span>Total Rumah Aktif</span><strong>100</strong></div>
+        <div class="wf-card"><span>Lunas</span><strong>72</strong></div>
+        <div class="wf-card"><span>Menunggu Verifikasi</span><strong>5</strong></div>
+        <div class="wf-card"><span>Sudah Bayar</span><strong>10</strong></div>
+        <div class="wf-card"><span>Belum Bayar</span><strong>13</strong></div>
+      </div>
+      <table class="wf-table">
+        <tr><th>Rumah</th><th>Status</th><th>Keterangan</th></tr>
+        <tr><td>C4/06</td><td><span class="badge lunas">Lunas</span></td><td>Lunas sampai Jul 2026</td></tr>
+        <tr><td>C4/07</td><td><span class="badge sudah">Sudah Bayar</span></td><td>Sampai Apr 2026 · belum bayar Mei–Jul</td></tr>
+        <tr><td>C4/08</td><td><span class="badge belum">Belum Bayar</span></td><td>Mei – Jul 2026</td></tr>
+        <tr><td>C4/09</td><td><span class="badge tunggu">Menunggu Verifikasi</span></td><td>Bukti sedang diperiksa</td></tr>
+      </table>
+      <p class="wf-note">Tanpa nama pemilik · tanpa bukti transfer · tanpa search/filter untuk publik.</p>
+    </div>
+  </div>
+</section>
+
+<section id="s19">
+  <h2>19. Wireframe Autentikasi</h2>
+  <div class="two-col">
+    <div>
+      <h3>19.1 Login — <code>/login</code></h3>
+      <div class="wf">
+        <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">/login</span></div>
+        <div class="wf-body">
+          <div class="wf-label">Username / Email</div>
+          <div class="wf-input">Lupine-C4/06</div>
+          <div class="wf-label">Password</div>
+          <div class="wf-input">••••••••</div>
+          <span class="wf-btn">Masuk</span>
+          <p class="wf-note">Warga login dengan akun rumah, contoh: Lupine-C4/06. Admin login dengan email bendahara@bagarry.id.</p>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>19.2 Ganti Password Wajib — <code>/ganti-password</code></h3>
+      <div class="wf">
+        <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">/ganti-password</span></div>
+        <div class="wf-body">
+          <div class="wf-label">Password saat ini</div>
+          <div class="wf-input">••••••••</div>
+          <div class="wf-label">Password baru</div>
+          <div class="wf-input">••••••••</div>
+          <div class="wf-label">Ulangi password baru</div>
+          <div class="wf-input">••••••••</div>
+          <span class="wf-btn">Simpan Password</span>
+          <p class="wf-note">Minimal 8 karakter · tidak boleh sama dengan password default · muncul otomatis saat login pertama.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="s20">
+  <h2>20. Wireframe Halaman Warga</h2>
+
+  <h3>20.1 Dashboard Warga — <code>/warga</code></h3>
+  <div class="wf">
+    <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">/warga</span></div>
+    <div class="wf-body">
+      <div class="wf-header"><span>Halo, Lupine-C4/06</span><span class="wf-btn ghost">Logout</span></div>
+      <div class="wf-grid">
+        <div class="wf-card"><span>Status Rumah</span><strong>Berpenghuni</strong></div>
+        <div class="wf-card"><span>Status Pembayaran</span><strong><span class="badge sudah">Sudah Bayar</span></strong></div>
+        <div class="wf-card"><span>Sudah bayar sampai</span><strong>April 2026</strong></div>
+        <div class="wf-card"><span>Belum bayar</span><strong>Mei, Jun, Jul 2026</strong></div>
+      </div>
+      <div class="wf-grid">
+        <div class="wf-card hero"><span>Total tagihan saat ini</span><strong>Rp150.000</strong></div>
+        <div class="wf-card"><span>&nbsp;</span><span class="wf-btn">Upload Bukti Transfer</span></div>
+      </div>
+      <table class="wf-table">
+        <tr><th>Tanggal</th><th>Bulan</th><th>Nominal</th><th>Status</th></tr>
+        <tr><td>12 Jul 2026</td><td>Mei – Jun 2026</td><td>Rp100.000</td><td><span class="badge tunggu">Menunggu Verifikasi</span></td></tr>
+        <tr><td>10 Feb 2026</td><td>Jan – Feb 2026</td><td>Rp100.000</td><td><span class="badge lunas">Diverifikasi</span></td></tr>
+      </table>
+      <p class="wf-note">[Riwayat Lengkap]</p>
+    </div>
+  </div>
+
+  <h3>20.2 Upload Bukti Transfer — <code>/warga/pembayaran</code></h3>
+  <div class="wf">
+    <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">/warga/pembayaran</span></div>
+    <div class="wf-body">
+      <div class="wf-label">Bulan yang belum dibayar: Mei 2026, Juni 2026, Juli 2026</div>
+      <div class="wf-check">☑ Mei 2026</div>
+      <div class="wf-check">☑ Juni 2026</div>
+      <div class="wf-check">☑ Juli 2026</div>
+      <div class="wf-grid" style="margin-top:10px">
+        <div class="wf-card"><span>Nominal per bulan</span><strong>Rp50.000</strong></div>
+        <div class="wf-card"><span>Jumlah bulan</span><strong>3</strong></div>
+        <div class="wf-card hero"><span>Total pembayaran</span><strong>Rp150.000</strong></div>
+      </div>
+      <div class="wf-label">Upload bukti transfer (jpg/png/pdf, maks 5 MB)</div>
+      <div class="wf-input">📎 bukti-transfer.jpg</div>
+      <div class="wf-label">Catatan opsional</div>
+      <div class="wf-input">Transfer dari BCA a.n. ...</div>
+      <span class="wf-btn">Kirim Bukti</span>
+      <p class="wf-note">Bulan dipilih berurutan mulai tunggakan terlama · setelah submit status = Menunggu Verifikasi · tidak dapat diubah warga.</p>
+    </div>
+  </div>
+
+  <h3>20.3 Riwayat &amp; Detail — <code>/warga/riwayat</code></h3>
+  <div class="wf">
+    <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">/warga/riwayat</span></div>
+    <div class="wf-body">
+      <table class="wf-table">
+        <tr><th>Tanggal</th><th>Bulan</th><th>Nominal</th><th>Status</th></tr>
+        <tr><td>12 Jul 2026</td><td>Mei – Jul 2026</td><td>Rp150.000</td><td><span class="badge tunggu">Menunggu Verifikasi</span></td></tr>
+        <tr><td>10 Feb 2026</td><td>Jan – Feb 2026</td><td>Rp100.000</td><td><span class="badge lunas">Diverifikasi</span></td></tr>
+      </table>
+      <div class="wf-modal">
+        <strong>Detail Pembayaran</strong><br>
+        Bulan: Mei – Juli 2026 · Nominal: Rp150.000 · Upload: 12 Juli 2026<br>
+        Status: <span class="badge tunggu">Menunggu Verifikasi</span> &nbsp; <span class="wf-btn sm ghost">Lihat Bukti</span><br>
+        <em>Contoh jika ditolak:</em> Status <span class="badge belum">Ditolak</span> — Alasan: “Bukti tidak jelas, silakan upload ulang.”
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="s21">
+  <h2>21. Wireframe Halaman Bendahara</h2>
+
+  <h3>21.1 Dashboard Admin — <code>/admin</code></h3>
+  <div class="wf">
+    <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">/admin</span></div>
+    <div class="wf-body">
+      <div class="wf-header"><span>Dashboard Bendahara</span><span class="wf-btn ghost">Logout</span></div>
+      <div class="wf-grid">
+        <div class="wf-card hero"><span>Saldo Kas</span><strong>Rp5.300.000</strong></div>
+        <div class="wf-card"><span>Pemasukan Bulan Ini</span><strong>Rp4.500.000</strong></div>
+        <div class="wf-card"><span>Pengeluaran Bulan Ini</span><strong>Rp1.200.000</strong></div>
+      </div>
+      <div class="wf-grid">
+        <div class="wf-card"><span>Lunas</span><strong>72</strong></div>
+        <div class="wf-card"><span>Menunggu Verif</span><strong>5</strong></div>
+        <div class="wf-card"><span>Sudah Bayar</span><strong>10</strong></div>
+        <div class="wf-card"><span>Belum Bayar</span><strong>13</strong></div>
+      </div>
+      <div class="wf-label">Menunggu Verifikasi</div>
+      <table class="wf-table">
+        <tr><th>Rumah</th><th>Bulan</th><th>Nominal</th><th>Tanggal</th><th>Aksi</th></tr>
+        <tr><td>C4/06</td><td>Mei – Jul</td><td>Rp150.000</td><td>12 Jul</td><td><span class="wf-btn sm">Periksa</span></td></tr>
+        <tr><td>C4/11</td><td>Jul</td><td>Rp50.000</td><td>12 Jul</td><td><span class="wf-btn sm">Periksa</span></td></tr>
+      </table>
+      <div class="wf-label" style="margin-top:12px">Rumah Belum Bayar</div>
+      <table class="wf-table">
+        <tr><th>Rumah</th><th>Bulan Belum Bayar</th><th>Aksi</th></tr>
+        <tr><td>C4/08</td><td>Mei, Jun, Jul</td><td><span class="wf-btn sm ghost">Detail</span></td></tr>
+        <tr><td>C4/14</td><td>Jul</td><td><span class="wf-btn sm ghost">Detail</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>21.2 Verifikasi Pembayaran — <code>/admin/payments/pending/:id</code></h3>
+  <div class="wf">
+    <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">/admin/payments/pending/18</span></div>
+    <div class="wf-body">
+      <div class="wf-grid">
+        <div class="wf-card"><span>Rumah</span><strong>C4/06</strong></div>
+        <div class="wf-card"><span>Bulan</span><strong>Mei – Jul 2026</strong></div>
+        <div class="wf-card"><span>Nominal</span><strong>Rp150.000</strong></div>
+        <div class="wf-card"><span>Tanggal upload</span><strong>12 Jul 2026</strong></div>
+      </div>
+      <div class="wf-label">Catatan warga</div>
+      <div class="wf-input">Transfer dari BCA</div>
+      <span class="wf-btn ghost">👁 Lihat Bukti Transfer</span>
+      <div style="margin-top:12px">
+        <span class="wf-btn">✓ Sudah Bayar</span> &nbsp; <span class="wf-btn danger">✕ Tolak</span>
+      </div>
+      <div class="wf-modal">
+        <strong>Modal Tolak Pembayaran</strong><br>
+        <div class="wf-label">Alasan penolakan</div>
+        <div class="wf-input">Bukti tidak jelas / nominal tidak sesuai</div>
+        <span class="wf-btn sm ghost">Batal</span> <span class="wf-btn sm danger">Tolak</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>21.3 Kelola Rumah — <code>/admin/houses</code></h3>
+  <div class="wf">
+    <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">/admin/houses</span></div>
+    <div class="wf-body">
+      <span class="wf-btn">+ Tambah Rumah</span> &nbsp; <span class="wf-btn ghost">⬆ Import CSV</span>
+      <table class="wf-table" style="margin-top:12px">
+        <tr><th>Kode Rumah</th><th>Status Huni</th><th>Aktif</th><th>Status Bayar</th><th>Aksi</th></tr>
+        <tr><td>Lupine-C4/06</td><td>Berpenghuni</td><td>Ya</td><td><span class="badge lunas">Lunas</span></td><td><span class="wf-btn sm ghost">Edit</span></td></tr>
+        <tr><td>Lupine-C4/07</td><td>Kosong</td><td>Ya</td><td><span class="badge sudah">Sudah Bayar</span></td><td><span class="wf-btn sm ghost">Edit</span></td></tr>
+        <tr><td>Lupine-C4/08</td><td>Tanah Kosong</td><td>Tidak</td><td><span class="badge nonaktif">Nonaktif</span></td><td><span class="wf-btn sm ghost">Edit</span></td></tr>
+      </table>
+      <div class="wf-modal">
+        <strong>Form Tambah Rumah</strong><br>
+        <div class="wf-label">Jenis rumah</div><div class="wf-input">Lupine</div>
+        <div class="wf-label">Blok</div><div class="wf-input">C4/09</div>
+        <div class="wf-label">Status huni</div><div class="wf-input">Berpenghuni ▾</div>
+        <div class="wf-check">☑ Aktif sebagai wajib iuran</div>
+        <span class="wf-btn sm">Simpan</span>
+        <p class="wf-note">Otomatis membuat username Lupine-C4/09, password default BagarryC4/09, must_change_password = true.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>21.4 Pengeluaran — <code>/admin/expenses</code></h3>
+  <div class="wf">
+    <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">/admin/expenses</span></div>
+    <div class="wf-body">
+      <span class="wf-btn">+ Tambah Pengeluaran</span>
+      <table class="wf-table" style="margin-top:12px">
+        <tr><th>Tanggal</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr>
+        <tr><td>10 Jul 2026</td><td>Perbaikan lampu jalan blok C</td><td>Rp350.000</td><td><span class="wf-btn sm ghost">Detail</span></td></tr>
+        <tr><td>15 Jul 2026</td><td>Beli alat kebersihan</td><td>Rp200.000</td><td><span class="wf-btn sm ghost">Detail</span></td></tr>
+      </table>
+      <div class="wf-modal">
+        <strong>Form Tambah Pengeluaran</strong><br>
+        <div class="wf-label">Tanggal</div><div class="wf-input">2026-07-15</div>
+        <div class="wf-label">Keterangan</div><div class="wf-input">Beli alat kebersihan</div>
+        <div class="wf-label">Nominal</div><div class="wf-input">200000</div>
+        <div class="wf-label">Bukti (opsional)</div><div class="wf-input">📎 nota.jpg</div>
+        <span class="wf-btn sm">Simpan</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>21.5 Laporan — <code>/admin/reports</code></h3>
+  <div class="wf">
+    <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">/admin/reports</span></div>
+    <div class="wf-body">
+      <div class="wf-label">Filter: Bulan [Juli ▾] Tahun [2026 ▾] <span class="wf-btn sm">Tampilkan</span></div>
+      <div class="wf-grid" style="margin-top:10px">
+        <div class="wf-card"><span>Saldo Awal</span><strong>Rp2.000.000</strong></div>
+        <div class="wf-card"><span>Pemasukan</span><strong>Rp4.500.000</strong></div>
+        <div class="wf-card"><span>Pengeluaran</span><strong>Rp1.200.000</strong></div>
+        <div class="wf-card hero"><span>Saldo Akhir</span><strong>Rp5.300.000</strong></div>
+      </div>
+      <div class="wf-label">Pemasukan (verified)</div>
+      <table class="wf-table">
+        <tr><th>Tanggal</th><th>Rumah</th><th>Bulan</th><th>Nominal</th></tr>
+        <tr><td>05 Jul</td><td>C4/10</td><td>Jul</td><td>Rp50.000</td></tr>
+        <tr><td>12 Jul</td><td>C4/06</td><td>Mei – Jul</td><td>Rp150.000</td></tr>
+      </table>
+      <div class="wf-label" style="margin-top:12px">Pengeluaran</div>
+      <table class="wf-table">
+        <tr><th>Tanggal</th><th>Keterangan</th><th>Nominal</th></tr>
+        <tr><td>10 Jul</td><td>Perbaikan lampu jalan blok C</td><td>Rp350.000</td></tr>
+        <tr><td>15 Jul</td><td>Beli alat kebersihan</td><td>Rp200.000</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>21.6 Pengaturan &amp; Audit Log</h3>
+  <div class="two-col">
+    <div class="wf">
+      <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">/admin/settings</span></div>
+      <div class="wf-body">
+        <div class="wf-label">Nominal iuran bulanan</div><div class="wf-input">50000</div>
+        <div class="wf-label">Saldo awal</div><div class="wf-input">2000000</div>
+        <div class="wf-label">Tanggal saldo awal</div><div class="wf-input">2026-07-01</div>
+        <div class="wf-label">Bulan awal tagihan global</div><div class="wf-input">2026-01</div>
+        <span class="wf-btn">Simpan Pengaturan</span>
+      </div>
+    </div>
+    <div class="wf">
+      <div class="wf-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="wf-url">/admin/audit</span></div>
+      <div class="wf-body">
+        <table class="wf-table">
+          <tr><th>Waktu</th><th>Aktor</th><th>Aksi</th><th>Entity</th></tr>
+          <tr><td>12 Jul 10:20</td><td>Bendahara</td><td>approve_payment</td><td>#18</td></tr>
+          <tr><td>12 Jul 10:10</td><td>C4/06</td><td>create_payment</td><td>#18</td></tr>
+          <tr><td>11 Jul 20:05</td><td>Bendahara</td><td>create_expense</td><td>#5</td></tr>
+        </table>
+        <p class="wf-note">Detail: old values → new values, IP, timestamp. Hanya dapat diakses bendahara.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="s22">
+  <h2>22. Matriks Hak Akses</h2>
+  <h3>22.1 Halaman</h3>
+  <table>
+    <tr><th>Halaman</th><th>Publik</th><th>Warga</th><th>Bendahara</th></tr>
+    <tr><td>/</td><td>✅</td><td>✅</td><td>✅</td></tr>
+    <tr><td>/login</td><td>✅</td><td>—</td><td>—</td></tr>
+    <tr><td>/warga, /warga/pembayaran, /warga/riwayat, /warga/password</td><td>—</td><td>✅</td><td>—</td></tr>
+    <tr><td>/admin, /admin/houses, /admin/payments, /admin/expenses, /admin/reports, /admin/settings, /admin/audit</td><td>—</td><td>—</td><td>✅</td></tr>
+  </table>
+  <h3>22.2 Data</h3>
+  <table>
+    <tr><th>Data</th><th>Warga</th><th>Bendahara</th></tr>
+    <tr><td>Saldo kas &amp; rekap pembayaran</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Status rumah tanpa nama (daftar publik)</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Status &amp; bulan belum bayar rumah sendiri</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Bukti transfer rumah sendiri</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Bukti transfer rumah lain</td><td>❌</td><td>✅</td></tr>
+    <tr><td>Nama pemilik</td><td>❌</td><td>✅</td></tr>
+    <tr><td>Pengeluaran global &amp; detail</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Bukti pengeluaran</td><td>❌ (default)</td><td>✅</td></tr>
+    <tr><td>Audit log, kelola rumah, pengaturan</td><td>❌</td><td>✅</td></tr>
+  </table>
+</section>
+
+<section id="s23">
+  <h2>23. Flow Utama Sistem</h2>
+  <h3>23.1 Warga upload bukti</h3>
+  <pre>Login → (wajib ganti password jika default) → dashboard warga
+→ klik Upload Bukti → pilih bulan (mulai tunggakan terlama, berurutan)
+→ sistem hitung total → upload file → submit
+→ status Menunggu Verifikasi → bendahara memeriksa
+→ valid: Sudah Bayar | tidak valid: Tolak (+alasan, warga upload ulang)</pre>
+  <h3>23.2 Bendahara verifikasi</h3>
+  <pre>Login admin → dashboard → menu Menunggu Verifikasi → pilih payment
+→ lihat bukti → cek nominal &amp; bulan
+→ [Sudah Bayar]: payment verified, items paid, paid_until update, ledger income, audit
+→ [Tolak]: payment rejected + alasan, items rejected, audit</pre>
+  <h3>23.3 Bendahara mencatat pengeluaran</h3>
+  <pre>Login admin → Pengeluaran → Tambah → isi tanggal/nominal/keterangan (+bukti opsional)
+→ simpan → ledger expense dibuat → saldo berkurang → tampil di laporan → audit</pre>
+</section>
+
+<section id="s24">
+  <h2>24. Roadmap &amp; Checklist Go-Live</h2>
+  <h3>24.1 Roadmap Development</h3>
+  <table>
+    <tr><th>Phase</th><th>Isi</th></tr>
+    <tr><td>1. Setup</td><td>Repo, Cloudflare Pages, D1, R2, auth dasar, layout publik/login.</td></tr>
+    <tr><td>2. Data rumah &amp; auth</td><td>Schema houses/users, import CSV, generate akun warga, login warga/admin, ganti password.</td></tr>
+    <tr><td>3. Pembayaran warga</td><td>Dashboard warga, hitung bulan belum bayar, form pilih bulan, upload bukti ke R2, simpan payment + items.</td></tr>
+    <tr><td>4. Verifikasi</td><td>Dashboard admin, list pending, detail bukti, approve/reject, update paid_until, ledger income.</td></tr>
+    <tr><td>5. Pengeluaran &amp; laporan</td><td>Form expense, ledger expense, laporan bulanan, papan publik.</td></tr>
+    <tr><td>6. Audit &amp; security</td><td>Audit log, rate limit login, validasi akses file, testing role.</td></tr>
+  </table>
+  <h3>24.2 Checklist Go-Live</h3>
+  <ul>
+    <li>☐ Admin bisa login</li>
+    <li>☐ Warga bisa login</li>
+    <li>☐ Password default tidak bisa dipakai terus tanpa ganti</li>
+    <li>☐ Data ±100 rumah sudah ter-import</li>
+    <li>☐ Papan publik menampilkan saldo &amp; rekap</li>
+    <li>☐ Warga bisa upload bukti</li>
+    <li>☐ Bendahara bisa approve &amp; reject</li>
+    <li>☐ Saldo bertambah hanya setelah approve</li>
+    <li>☐ Pengeluaran mengurangi saldo</li>
+    <li>☐ Bukti tidak bisa diakses publik</li>
+    <li>☐ Warga tidak bisa lihat data rumah lain</li>
+    <li>☐ Audit log tercatat</li>
+    <li>☐ Tampilan mobile rapi</li>
+    <li>☐ Timezone Asia/Jakarta benar</li>
+    <li>☐ Nominal tampil format Rupiah</li>
+  </ul>
+</section>
+
+<section id="s25">
+  <h2>25. Lampiran: API &amp; Struktur Project</h2>
+  <h3>25.1 Endpoint API</h3>
+  <pre>POST   /api/auth/login
+POST   /api/auth/logout
+POST   /api/auth/change-password
+
+GET    /api/public/summary
+GET    /api/public/houses
+
+GET    /api/warga/me
+GET    /api/warga/unpaid-months
+POST   /api/warga/payments
+GET    /api/warga/payments
+GET    /api/warga/payments/:id
+
+GET    /api/admin/summary
+GET    /api/admin/houses
+POST   /api/admin/houses
+PATCH  /api/admin/houses/:id
+POST   /api/admin/houses/import
+
+GET    /api/admin/payments
+GET    /api/admin/payments/pending
+GET    /api/admin/payments/:id
+POST   /api/admin/payments/:id/approve
+POST   /api/admin/payments/:id/reject
+
+GET    /api/admin/expenses
+POST   /api/admin/expenses
+GET    /api/admin/expenses/:id
+
+GET    /api/admin/reports/monthly
+GET    /api/admin/settings
+PATCH  /api/admin/settings
+GET    /api/admin/audit
+
+POST   /api/admin/files/upload
+GET    /api/files/:id        (akses dicek role &amp; kepemilikan)</pre>
+  <h3>25.2 Struktur Project (contoh SvelteKit)</h3>
+  <pre>src/
+  lib/
+    components/  public/ resident/ admin/ ui/
+    server/
+      auth/
+      services/  house.service.ts  payment.service.ts  expense.service.ts
+                 ledger.service.ts  audit.service.ts   file.service.ts
+      db/        schema.ts  client.ts
+    utils/       date.ts  money.ts  password.ts  month.ts
+  routes/
+    +page.svelte
+    login/  ganti-password/
+    warga/  +page.svelte  pembayaran/  riwayat/  password/
+    admin/  +page.svelte  houses/  payments/  expenses/  reports/  settings/  audit/</pre>
+</section>
+
+<footer>
+  Dokumen internal Amartha Cluster Bagarry · Versi 1.0 · Disusun sebagai acuan development<br>
+  Gunakan tombol “Print / Save PDF” di atas untuk menyimpan versi PDF.
+</footer>
+
+</div>
+</body>
+</html>
